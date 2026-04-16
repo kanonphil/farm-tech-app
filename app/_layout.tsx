@@ -24,6 +24,7 @@ import {
 import AlertModal from '@/src/components/common/AlertModal';
 import Toast from '@/src/components/common/Toast';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar'
 
 // global.css는 NativeWind가 Tailwind 유틸리티를 활성화하기 위해 반드시 필요합니다
 import '@/global.css'
@@ -153,13 +154,25 @@ const RootLayout = (): React.JSX.Element | null => {
   // ─────────────────────────────────────────────
   return (
     <SafeAreaProvider>
+      {/**
+       * StatusBar: 상단 상태바 스타일 전역 설정
+       * style="auto" — 라이트/다크 모드 자동 전환
+       * translucent={false} — edgeToEdgeEnabled: true 환경에서 상태바가
+       * 콘텐츠 위에 떠있지 않도록 불투명 처리
+       */}
+      <StatusBar style="auto" translucent={false} />
+      
       {/* 페이지 네비게이션 스택 */}
       <Stack screenOptions={{ headerShown: false }}>
         {/**
-         * modal: presentation을 'modal'로 설정하면
-         * router.push('/modal') 호출 시 아래에서 시트처럼 올라옵니다.
-         * 나머지 화면은 screenOptions의 기본값(headerShown: false)을 그대로 사용합니다.
+         * index를 첫 번째로 명시해야 앱 시작 시 초기 화면이 됩니다.
+         * Stack.Screen의 첫 번째 항목이 초기 라우트로 인식되므로
+         * modal보다 반드시 앞에 위치해야 합니다.
          */}
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="auth/login" />
+        <Stack.Screen name="auth/signup" />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
 
