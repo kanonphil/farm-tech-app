@@ -18,7 +18,7 @@ import useAuthStore from '@/src/store/authStore';
 /**
  * 탭 바 레이아웃 컴포넌트
  */
-const TabsLayout = (): JSX.Element => {
+const TabsLayout = (): React.JSX.Element => {
   // 장바구니 수량 — 0보다 크면 탭 아이콘 위에 뱃지로 표시합니다
   const cartCount = useAuthStore((state) => state.cartCount);
 

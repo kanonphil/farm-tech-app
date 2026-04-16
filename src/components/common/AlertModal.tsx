@@ -20,7 +20,7 @@ import useAuthStore from '@/src/store/authStore';
  * 전역 알림 모달 컴포넌트
  * StyleSheet 없이 NativeWind(Tailwind) className만 사용합니다.
  */
-const AlertModal = (): JSX.Element => {
+const AlertModal = (): React.JSX.Element => {
   // authStore에서 모달 상태와 닫기 액션을 가져옵니다
   const alertModal = useAuthStore((state) => state.alertModal);
   const closeAlert = useAuthStore((state) => state.closeAlert);

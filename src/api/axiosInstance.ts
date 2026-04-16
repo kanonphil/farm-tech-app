@@ -22,6 +22,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { router } from 'expo-router';
 import useAuthStore from '@/src/store/authStore';
+import { BASE_URL } from '../constants';
 
 // ─────────────────────────────────────────────
 // Axios 인스턴스 생성
@@ -30,7 +31,7 @@ import useAuthStore from '@/src/store/authStore';
 export const axiosInstance = axios.create({
   // 서버 기본 URL — 실제 배포 서버 주소로 변경 필요
   // 개발 시: 안드로이드 에뮬레이터는 10.0.2.2, 실제 기기는 컴퓨터 IP 주소 사용
-  baseURL: 'http://10.0.2.2:8080',
+  baseURL: BASE_URL,
 });
 
 // ─────────────────────────────────────────────
