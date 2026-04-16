@@ -18,7 +18,7 @@ import useAuth from '@/src/hooks/useAuth';
  * 진입점 라우트 컴포넌트
  * 로그인 여부에 따라 홈 또는 로그인 페이지로 리다이렉트합니다.
  */
-const Index = (): JSX.Element | null => {
+const IndexScreen = (): React.JSX.Element | null => {
   // useAuth 훅에서 로그인 상태를 가져옵니다
   const { isLoggedIn, isReady, token } = useAuth();
 
@@ -38,4 +38,4 @@ const Index = (): JSX.Element | null => {
   return <Redirect href="/auth/login" />;
 };
 
-export default Index;
+export default IndexScreen;

@@ -1,0 +1,12 @@
+/**
+ * NativeWind v4 글로벌 CSS
+ *
+ * Tailwind의 핵심 지시어를 선언합니다.
+ * 이 파일이 없으면 className이 전혀 적용되지 않습니다.
+ *
+ * 이 파일은 app/_layout.tsx에서 import 되어야 합니다.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
