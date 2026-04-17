@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import React from 'react'
 
 // 상품 카드
@@ -9,5 +9,3 @@ export default function ProductCard() {
     </View>
   )
 }
-
-const styles = StyleSheet.create({})

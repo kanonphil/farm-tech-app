@@ -16,7 +16,7 @@ import ScreenWrapper from '@/src/components/common/ScreenWrapper'
  *   router.push('/modal')   // 모달 열기
  *   router.back()           // 모달 닫기
  */
-export default function ModalScreen(): React.JSX.Element {
+export default function ModalScreen() {
   return (
     <ScreenWrapper>
       <Text className="mb-4 text-lg font-semibold text-[#1a1a1a]">모달</Text>

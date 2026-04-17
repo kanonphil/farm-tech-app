@@ -42,7 +42,7 @@ SplashScreen.preventAutoHideAsync();
  * isAuthReady가 false이면 null을 반환합니다.
  * 이때 스플래시 화면이 앱 전체를 덮고 있으므로 사용자에게 빈 화면이 보이지 않습니다.
  */
-const RootLayout = (): React.JSX.Element | null => {
+const RootLayout = () => {
   // authStore에서 필요한 상태와 액션을 가져옵니다
   const token = useAuthStore((state) => state.token);
   const isAuthReady = useAuthStore((state) => state.isAuthReady);

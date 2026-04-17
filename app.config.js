@@ -54,12 +54,12 @@ export default {
       typedRoutes: true,
       reactCompiler: true,
     },
-    extra: {
-      /**
-       * .env의 EXPO_PUBLIC_API_URL 값을 읽습니다.
-       * .env 파일이 없거나 값이 없으면 안드로이드 에뮬레이터 기본값 사용
-       */
-      apiUrl: process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:8080',
-    },
+    // extra: {
+    //   /**
+    //    * .env의 EXPO_PUBLIC_API_URL 값을 읽습니다.
+    //    * .env 파일이 없거나 값이 없으면 안드로이드 에뮬레이터 기본값 사용
+    //    */
+    //   apiUrl: process.env.EXPO_PUBLIC_API_URL,
+    // },
   },
 };

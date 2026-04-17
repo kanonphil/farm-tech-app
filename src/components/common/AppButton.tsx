@@ -42,7 +42,7 @@ export default function AppButton({
   disabled=false,
   size='md',
   ...props
-}: AppButtonProps): React.JSX.Element {
+}: AppButtonProps) {
 
   // ── 크기별 클래스 ──────────────────────────────────────
   const sizeClass = {

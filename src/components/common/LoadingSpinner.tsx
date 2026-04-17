@@ -31,7 +31,7 @@ export default function LoadingSpinner({
   size = 'large',
   color = Colors.primary,
   full = false,
-}: LoadingSpinnerProps): React.JSX.Element {
+}: LoadingSpinnerProps) {
   if (full) {
     return (
       <View className='flex-1 items-center justifyi-center bg-[#f9f9f9]'>

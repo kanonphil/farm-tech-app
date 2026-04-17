@@ -51,7 +51,7 @@ export default function ScreenWrapper({
   scroll = false,
   style,
   edges,
-}: ScreenWrapperProps): React.JSX.Element {
+}: ScreenWrapperProps) {
   return (
     <SafeAreaView style={[styles.container, style]} edges={edges}>
       {/**

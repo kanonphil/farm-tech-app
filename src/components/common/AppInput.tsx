@@ -44,7 +44,7 @@ export default function AppInput({
   error,
   isPassword = false,
   ...props
-}: AppInputProps): React.JSX.Element {
+}: AppInputProps) {
   /** 비밀번호 표시/숨김 토글 상태 */
   const [showPassword, setShowPassword] = useState(false)
   

@@ -16,6 +16,7 @@ import {
   Member,
   UpdateMemberRequest,
 } from '@/src/types';
+import { BASE_URL } from '../constants';
 
 // ─────────────────────────────────────────────
 // 회원가입 / 이메일 중복 확인
@@ -28,7 +29,7 @@ import {
  * @param data 회원가입 폼 데이터
  */
 export const registerMember = async (data: SignupRequest): Promise<void> => {
-  await axios.post('http://10.0.2.2:8080/members', data);
+  await axios.post(`${BASE_URL}/members`, data);
 };
 
 /**
@@ -38,7 +39,7 @@ export const registerMember = async (data: SignupRequest): Promise<void> => {
  * @returns true = 이미 사용 중, false = 사용 가능
  */
 export const checkEmailDuplicate = async (email: string): Promise<boolean> => {
-  const response = await axios.get('http://10.0.2.2:8080/members/check-email', {
+  const response = await axios.get(`${BASE_URL}/check-email`, {
     params: { memEmail: email },
   });
   return response.data;
@@ -146,7 +147,7 @@ export const findEmail = async (
   memberName: string,
   memberPhone: string
 ): Promise<string> => {
-  const response = await axios.post('http://10.0.2.2:8080/members/find-email', {
+  const response = await axios.post(`${BASE_URL}/members/find-email`, {
     memberName,
     memberPhone,
   });
@@ -165,7 +166,7 @@ export const verifyAccount = async (
   memberName: string,
   memberPhone: string
 ): Promise<void> => {
-  await axios.post('http://10.0.2.2:8080/members/verify-account', {
+  await axios.post(`${BASE_URL}/members/verify-account`, {
     memberEmail,
     memberName,
     memberPhone,
@@ -183,5 +184,5 @@ export const resetPassword = async (data: {
   memberPhone: string;
   memberPw: string;
 }): Promise<void> => {
-  await axios.patch('http://10.0.2.2:8080/members/reset-pw', data);
+  await axios.patch(`${BASE_URL}/members/reset-pw`, data);
 };
