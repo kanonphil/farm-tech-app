@@ -15,7 +15,7 @@ import { Stack } from 'expo-router';
 /**
  * 마이페이지 스택 레이아웃 컴포넌트
  */
-const MypageLayout = (): React.JSX.Element => {
+const MypageLayout = () => {
   return (
     <Stack
       screenOptions={{

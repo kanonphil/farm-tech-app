@@ -20,7 +20,7 @@ import useAuthStore from '@/src/store/authStore';
  * 하단 토스트 메시지 컴포넌트
  * StyleSheet 없이 NativeWind(Tailwind) className만 사용합니다.
  */
-const Toast = (): React.JSX.Element | null => {
+const Toast = () => {
   // authStore에서 토스트 상태와 닫기 액션을 가져옵니다
   const toast = useAuthStore((state) => state.toast);
   const closeToast = useAuthStore((state) => state.closeToast);
