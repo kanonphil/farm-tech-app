@@ -1,4 +1,5 @@
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
+import HomeHeader from '@/src/components/home/HomeHeader'
 import React from 'react'
 import { Text } from 'react-native'
 
@@ -9,8 +10,7 @@ import { Text } from 'react-native'
 export default function HomeScreen() {
   return (
     <ScreenWrapper edges={['top']}>
-      <Text className="text-base text-gray-400">홈 페이지</Text>
-      
+      <HomeHeader />
     </ScreenWrapper>
   )
 }
