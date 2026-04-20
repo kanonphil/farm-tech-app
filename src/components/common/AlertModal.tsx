@@ -13,7 +13,7 @@
  */
 
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, Pressable } from 'react-native';
+import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import useAuthStore from '@/src/store/authStore';
 
 /**

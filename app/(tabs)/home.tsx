@@ -1,6 +1,6 @@
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import React from 'react'
-import { View, Text } from 'react-native'
+import { Text } from 'react-native'
 
 /**
  * 홈 페이지 (상품 목록)
@@ -10,6 +10,7 @@ export default function HomeScreen() {
   return (
     <ScreenWrapper edges={['top']}>
       <Text className="text-base text-gray-400">홈 페이지</Text>
+      
     </ScreenWrapper>
   )
 }
