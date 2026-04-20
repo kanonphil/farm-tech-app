@@ -139,18 +139,21 @@ export interface Cart {
 
 /**
  * 장바구니 담기 요청 데이터
+ * 백엔드가 CartItemDTO를 그대로 받으므로 필드명이 cartItemQty여야 함.
  */
 export interface AddCartRequest {
   productId: number;
-  cnt: number;
+  cartItemQty: number;
 }
 
 /**
  * 장바구니 수량 변경 요청 데이터
+ * 백엔드는 cartItemId로 항목을 찾고, cartItemQty로 수량을 변경함.
+ * cartId(장바구니 ID)가 아닌 cartItemId(항목 ID)를 사용해야함.
  */
 export interface UpdateCartRequest {
-  cartId: number;
-  cnt: number;
+  cartItemId: number;
+  cartItemQty: number;
 }
 
 // =============================
