@@ -6,7 +6,7 @@
  */
 
 import { axiosInstance } from './axiosInstance';
-import { Cart, AddCartRequest, UpdateCartRequest } from '@/src/types';
+import { AddCartRequest, UpdateCartRequest, CartItem } from '@/src/types';
 
 // ─────────────────────────────────────────────
 // 조회
@@ -15,12 +15,14 @@ import { Cart, AddCartRequest, UpdateCartRequest } from '@/src/types';
 /**
  * 장바구니 전체 조회
  * GET /carts/items
- * 로그인한 회원의 장바구니에 담긴 상품 목록을 반환합니다.
- * CartItem 안에 product(상품 상세 정보)가 중첩된 구조로 내려옵니다.
- * @returns 장바구니 정보 (cartId, memberId, cartItemDTOList 포함)
+ *
+ * ⚠️ 백엔드가 CartDTO 래퍼 없이 List<CartItemDTO>를 직접 반환합니다.
+ * 따라서 반환 타입이 Cart가 아닌 CartItem[] 입니다.
+ *
+ * @returns 장바구니 상품 목록 (각 항목 안에 product 정보 중첩)
  */
-export const getCartItems = async (): Promise<Cart> => {
-  const response = await axiosInstance.get<Cart>('/carts/items');
+export const getCartItems = async (): Promise<CartItem[]> => {
+  const response = await axiosInstance.get<CartItem[]>('/carts/items');
   return response.data;
 };
 

@@ -1,21 +1,20 @@
 /**
  * Babel 설정 파일
  *
- * Babel은 최신 JavaScript/TypeScript 문법을 React Native가 이해할 수 있는
- * 코드로 변환해주는 도구입니다.
+ * NativeWind v4 설정 방식:
+ *  - metro.config.js (withNativeWind): global.css → Tailwind 스타일시트 생성
+ *  - jsxImportSource: "nativewind": JSX 팩토리를 NativeWind 버전으로 교체
+ *    → 별도 babel 플러그인 없이 className prop을 style로 변환
  *
- * NativeWind v4부터는 Babel 플러그인 방식을 사용하지 않습니다.
- * className 처리는 metro.config.js의 withNativeWind()가 담당합니다.
+ * 주의: 예전 docs에서 보이는 plugins: ["nativewind/babel"]은
+ *       v4.2.x 에서 preset 형식으로 바뀌어 plugins 배열에 넣으면 에러 발생
  */
 module.exports = function (api) {
-  // cache(true): 변환 결과를 캐시해서 빌드 속도를 높입니다
-  api.cache(true)
-
+  api.cache(true);
   return {
     presets: [
-      // Expo 기본 프리셋 (TypeScript, JSX 변환 포함)
-      'babel-preset-expo',
+      ["babel-preset-expo", { jsxImportSource: "nativewind" }],
+      "nativewind/babel",
     ],
-    // NativeWind v4는 metro.config.js에서 설정 — 여기에 플러그인 추가 불필요
-  }
-}
+  };
+};
