@@ -1,10 +1,7 @@
 import AuthGuard from '@/src/components/auth/AuthGuard'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
-import useAuth from '@/src/hooks/useAuth'
-import useAuthStore from '@/src/store/authStore'
-import { router } from 'expo-router'
-import React, { useEffect } from 'react'
-import { View, Text } from 'react-native'
+import React from 'react'
+import { Text } from 'react-native'
 
 /**
  * 장바구니 페이지

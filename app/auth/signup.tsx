@@ -1,6 +1,6 @@
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import React from 'react'
-import { View, Text } from 'react-native'
+import { Text } from 'react-native'
 
 /**
  * 회원가입 페이지

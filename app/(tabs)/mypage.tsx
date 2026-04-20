@@ -1,7 +1,7 @@
 import AuthGuard from '@/src/components/auth/AuthGuard'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import React from 'react'
-import { View, Text } from 'react-native'
+import { Text } from 'react-native'
 
 /**
  * 마이페이지 페이지
