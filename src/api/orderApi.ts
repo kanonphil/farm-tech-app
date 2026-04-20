@@ -1,36 +1,24 @@
-/**
- * 주문 / 결제 관련 API 모듈
- *
- * 웹의 orderApi.js와 paymentApi.js를 앱용으로 합쳐서 작성했습니다.
- *
- * ⚠️ 토스페이먼츠 결제 관련 주의사항:
- *   웹은 토스 SDK를 직접 사용하지만, 앱에서는 WebView를 통해 결제창을 띄워야 합니다.
- *   결제 승인(confirmPayment)과 취소(cancelPayment)는 결제 완료 후
- *   서버와 통신하는 부분이라 앱에서도 동일하게 사용합니다.
- *   결제 WebView 구현은 별도 작업이 필요합니다.
- */
-
 import { axiosInstance } from './axiosInstance';
-import { Order, CreateOrderRequest } from '@/src/types';
-
-// ─────────────────────────────────────────────
-// 주문 생성
-// ─────────────────────────────────────────────
+import { Order, CreateOrderRequest, CreateOrderResponse } from '@/src/types';
 
 /**
- * 주문 생성
+ * 주문 생성 API
+ *
+ * 흐름:
+ *  1. 결제 화면에서 호출
+ *  2. 서버가 주문을 DB에 저장하고 tossOrderId를 생성해서 반환
+ *  3. 반환된 tossOrderId로 Toss 결제 위젯을 초기화 (추후 구현)
+ *
  * POST /orders
- * 주문 정보와 주문 상품 목록을 서버에 저장하고
- * 토스페이먼츠 결제 요청에 필요한 tossOrderId를 반환합니다.
- * @param data 주문 정보 + 주문 상품 목록
- * @returns { tossOrderId: 토스 결제 요청용 주문 ID }
+ * @param request 주문 정보 (총액 + 주문 아이템 목록)
+ * @returns 서버가 생성한 Toss 주문 ID
  */
 export const createOrder = async (
-  data: CreateOrderRequest
-): Promise<{ tossOrderId: string }> => {
-  const response = await axiosInstance.post<{ tossOrderId: string }>(
+  request: CreateOrderRequest
+): Promise<CreateOrderResponse> => {
+  const response = await axiosInstance.post<CreateOrderResponse>(
     '/orders',
-    data
+    request
   );
   return response.data;
 };

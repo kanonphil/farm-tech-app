@@ -212,21 +212,38 @@ export interface Order {
 }
 
 /**
- * 주문 생성 요청 데이터 (OrderRequestDTO 기준)
+ * 주문 아이템 요청 DTO
+ * 백엔드 OrderItemDTO와 1:1 매핑
+ */
+export interface OrderItemRequest {
+  productId: number
+  orderItemQty: number
+  /** 단가 (총액 아님) */
+  orderItemPrice: number
+  productName: string
+  /** S3 URL의 파일명 부분 (예: "image.png") */
+  imageSavedName: string
+}
+
+/**
+ * 주문 생성 요청 DTO
+ * 백엔드 OrderRequestDTO와 1:1 매핑
+ * POST /orders
  */
 export interface CreateOrderRequest {
   orderDTO: {
-    orderTotalPrice: number;
-    deliveryAddr: string;
-    deliveryAddrDetail: string;
-    deliveryName: string;
-    deliveryPhone: string;
-  };
-  orderItemDTOList: {
-    productId: number;
-    orderItemQty: number;
-    orderItemPrice: number;
-  }[];
+    /** 선택된 상품 전체 합산 금액 */
+    orderTotalPrice: number
+  }
+  orderItemDTOList: OrderItemRequest[]
+}
+
+/**
+ * 주문 생성 응답
+ * 서버가 생성한 Toss 주문 ID 반환
+ */
+export interface CreateOrderResponse {
+  tossOrderId: string
 }
 
 // =============================
@@ -316,4 +333,18 @@ export interface Notification {
   link: string;
   isRead: boolean;
   createdAt: string;
+}
+
+/**
+ * 다음 우편번호 API 응답 타입
+ * 선택 완료 시 oncomplete 콜백으로 전달되는 데이터
+ */
+export interface DaumAddressData {
+  zonecode: string          // 우편번호 (5자리, 예: "06141")
+  roadAddress: string       // 도로명 주소 (예: "서울 강남구 테헤란로 427")
+  jibunAddress: string      // 지번 주소  (예: "서울 강남구 삼성동 159")
+  buildingName: string      // 건물명     (예: "강남파이낸스센터")
+  apartment: 'Y' | 'N'     // 아파트 여부
+  sido: string              // 시/도
+  sigungu: string           // 시/군/구
 }
