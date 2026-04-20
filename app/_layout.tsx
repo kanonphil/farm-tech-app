@@ -27,7 +27,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar'
 
 // global.css는 NativeWind가 Tailwind 유틸리티를 활성화하기 위해 반드시 필요합니다
-import '@/global.css'
+import '../global.css'
 
 // ─────────────────────────────────────────────
 // 스플래시 화면 자동 숨김 방지

@@ -9,8 +9,7 @@ import { Text } from 'react-native'
 export default function HomeScreen() {
   return (
     <ScreenWrapper edges={['top']}>
-      <Text className="text-base text-gray-400">홈 페이지</Text>
-      
+      <Text className="text-base text-red-500">홈 페이지</Text>
     </ScreenWrapper>
   )
 }
