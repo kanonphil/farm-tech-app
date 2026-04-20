@@ -9,10 +9,10 @@ import { Text } from 'react-native'
  */
 export default function MypageScreen() {
   return (
-    <AuthGuard redirectTo='/(tabs)/mypage'>
+    // <AuthGuard redirectTo='/(tabs)/mypage'>
       <ScreenWrapper edges={['top']}>
         <Text className="text-base text-gray-400">마이페이지 페이지</Text>
       </ScreenWrapper>
-    </AuthGuard>
+    // </AuthGuard>
   )
 }
