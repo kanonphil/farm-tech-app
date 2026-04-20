@@ -17,7 +17,7 @@
  *   - 10.0.2.2는 Android 에뮬레이터 전용
  *   - 반드시 실제 PC의 로컬 IP 사용
  */
-const apiUrl = process.env.API_BASE_URL
+const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL
 
 if (!apiUrl) {
   throw new Error('API_BASE_URL is not set')
