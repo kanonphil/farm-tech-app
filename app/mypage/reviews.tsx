@@ -1,6 +1,7 @@
+import AuthGuard from '@/src/components/auth/AuthGuard'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import React from 'react'
-import { View, Text } from 'react-native'
+import { Text } from 'react-native'
 
 /**
  * 리뷰 관리 페이지
@@ -8,8 +9,10 @@ import { View, Text } from 'react-native'
  */
 export default function ReviewsScreen() {
   return (
-    <ScreenWrapper edges={['bottom']}>
-      <Text className="text-base text-gray-400">리뷰 관리 페이지</Text>
-    </ScreenWrapper>
+    <AuthGuard redirectTo='/mypage/reviews'>
+      <ScreenWrapper edges={['bottom']}>
+        <Text className="text-base text-gray-400">리뷰 관리 페이지</Text>
+      </ScreenWrapper>
+    </AuthGuard>
   )
 }
