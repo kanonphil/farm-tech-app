@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where mysqldump)",
+      "mcp__notionApi__API-post-search",
+      "mcp__notionApi__API-get-block-children",
+      "mcp__notionApi__API-post-page",
+      "mcp__notionApi__API-patch-block-children"
+    ]
+  }
+}
