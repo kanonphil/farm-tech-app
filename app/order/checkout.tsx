@@ -252,7 +252,7 @@ export default function CheckoutScreen() {
  */
 function SectionHeader({ title, count }: { title: string; count?: number }) {
   return (
-    <View className="border-b border-[#eee] bg-[#f9f9f9] px-4 py-2">
+    <View className="border-b border-[#eee] bg-[#f9f9f9] px-4 py-4">
       <Text className="text-xs font-semibold text-[#888]">
         {title}
         {count !== undefined && (
