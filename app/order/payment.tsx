@@ -16,20 +16,15 @@ import TossPaymentWebView from '@/src/components/order/TossPaymentWebView'
  *   checkout.tsx → router.push('/order/payment?tossOrderId=...&amount=...&orderName=...')
  *
  * 흐름:
- *   1. URL params에서 결제 정보 파싱
+ *   1. URL params 에서 결제 정보 파싱
  *   2. TossPaymentWebView 렌더링
  *   3. 결제 성공 → confirmPayment() (서버 검증) → 완료 화면
  *   4. 결제 실패 → 토스트 → 뒤로가기
  *
- * ⚠️ router.replace를 쓰는 이유:
+ * ⚠️ router.replace 를 쓰는 이유:
  *   결제 완료 후 뒤로가기 시 결제 화면으로 돌아오면 안 됩니다.
- *   replace로 스택에서 payment를 제거하고 complete로 이동합니다.
  */
 export default function PaymentScreen() {
-  // ─────────────────────────────────────────────
-  // URL params 파싱
-  // ─────────────────────────────────────────────
-
   const {
     tossOrderId,
     amount: amountParam,
@@ -41,14 +36,10 @@ export default function PaymentScreen() {
   }>()
 
   /**
-   * amount는 URL param이라 문자열 → 숫자 변환 필요
-   * 변환 실패 시 0으로 fallback (서버에서 금액 재검증하므로 보안상 문제 없음)
+   * amount 는 URL param 이라 문자열 → 숫자 변환 필요
+   * 변환 실패 시 0 으로 fallback (서버에서 금액 재검증하므로 보안상 문제 없음)
    */
   const amount = parseInt(amountParam ?? '0', 10)
-
-  // ─────────────────────────────────────────────
-  // 상태
-  // ─────────────────────────────────────────────
 
   /** 서버 결제 확인 중 여부 - 이 시간 동안 뒤로가기 차단 */
   const [isConfirming, setIsConfirming] = useState(false)
@@ -60,40 +51,35 @@ export default function PaymentScreen() {
   // ─────────────────────────────────────────────
 
   /**
-   * Toss 결제 성공 후 호출됩니다.
+   * Toss 결제 성공 후 서버 검증을 수행합니다.
    *
-   * WebView가 successUrl 리다이렉트를 감지하면 TossSuccessParams를 넘깁니다.
-   * 이 함수에서 서버 결제 검증(POST /api/payments/confirm)을 수행합니다.
-   *
-   * 왜 서버 검증이 필요한가?
-   *  - 클라이언트는 amount를 임의로 변조할 수 있습니다.
-   *  - 서버에서 Toss API를 통해 실제 결제 금액과 상태를 재확인합니다.
-   *  - 검증 통과 시에만 주문 상태가 PAID로 변경됩니다.
+   * 서버에서 Toss API 재확인 → 재고 차감 → 주문 PAID 처리가 이뤄집니다.
+   * 서버 처리 실패 시 Toss 자동 취소(환불)가 진행됩니다.
    */
-  const IS_DEV = true
-  
   const handleSuccess = useCallback(
     async (params: TossSuccessParams) => {
       setIsConfirming(true)
 
       try {
-        if (!IS_DEV) {
-           // 실제 운영 시에만 백엔드 검증
-          await confirmPayment({
-            paymentKey: params.paymentKey,
-            orderId: params.orderId,
-            amount: parseInt(params.amount, 10),
-          })
-        }
+        await confirmPayment({
+          paymentKey: params.paymentKey,
+          orderId: params.orderId,
+          amount: parseInt(params.amount, 10),
+        })
 
-        // 서버 검증 성공 -> 완료 화면으로 이동
-        // replace: 결제 화면을 스택에서 제거해서 뒤로가기 방지
+        // 결제 완료 — replace 로 스택에서 payment 를 제거해 뒤로가기 방지
         router.replace(`/order/complete?tossOrderId=${params.orderId}`)
-      } catch (error) {
-        showToast('결제 확인에 실패했습니다. 고객센터에 문의해주세요.')
+      } catch (error: any) {
+        const serverMessage: string = error?.response?.data?.message ?? ''
+        if (serverMessage.includes('자동 환불')) {
+          showToast('결제 처리 중 오류가 발생하여 자동 환불되었습니다.')
+        } else {
+          showToast('결제 확인에 실패했습니다. 고객센터에 문의해주세요.')
+        }
         setIsConfirming(false)
       }
-    }, [showToast],
+    },
+    [showToast],
   )
 
   // ─────────────────────────────────────────────
@@ -102,20 +88,19 @@ export default function PaymentScreen() {
 
   /**
    * 결제 취소 또는 실패 시 호출됩니다.
-   * 토스트를 띄우고 결제 화면을 닫아 checkout으로 돌아갑니다.
+   * 토스트를 띄우고 결제 화면을 닫아 checkout 으로 돌아갑니다.
    */
-  const handleFail = useCallback((message: string) => {
-    showToast(message || '결제에 실패했습니다.')
-    router.back()
-  }, [showToast])
+  const handleFail = useCallback(
+    (message: string) => {
+      showToast(message || '결제에 실패했습니다.')
+      router.back()
+    },
+    [showToast],
+  )
 
-  // ─────────────────────────────────────────────
-  // 렌더링
-  // ─────────────────────────────────────────────
-  
   return (
     <ScreenWrapper edges={['top']}>
-      
+
       {/* ── 헤더 ────────────────────────────────── */}
       <View className="flex-row items-center border-b border-[#eee] bg-white px-4 py-3">
         {/**
@@ -138,14 +123,10 @@ export default function PaymentScreen() {
       </View>
 
       {/* ── 서버 결제 확인 중 오버레이 ─────────────── */}
-      {/**
-       * 결제 완료 후 서버 검증하는 동안 화면 전체를 덮어
-       * 사용자가 뒤로가거나 중복 요청하는 것을 방지합니다.
-       */}
       {isConfirming && (
         <View
           className="absolute inset-0 z-10 items-center justify-center bg-white/90"
-          style={{ top: 56 }} // 헤더 높이만큼 아래부터 시작
+          style={{ top: 56 }}
         >
           <ActivityIndicator size="large" color={Colors.primary} />
           <Text className="mt-3 text-sm text-[#555]">결제를 확인하는 중입니다...</Text>
@@ -153,7 +134,7 @@ export default function PaymentScreen() {
         </View>
       )}
 
-      {/* ── Toss 결제 위젯 WebView ──────────────── */}
+      {/* ── Toss 결제 WebView ──────────────────── */}
       {tossOrderId && amount > 0 ? (
         <TossPaymentWebView
           tossOrderId={tossOrderId}
@@ -163,7 +144,6 @@ export default function PaymentScreen() {
           onFail={handleFail}
         />
       ) : (
-        // params 누락 시 에러 화면
         <View className="flex-1 items-center justify-center px-6">
           <Text className="text-center text-base text-[#999]">
             결제 정보를 불러올 수 없습니다.
@@ -173,7 +153,7 @@ export default function PaymentScreen() {
           </TouchableOpacity>
         </View>
       )}
-      
+
     </ScreenWrapper>
   )
 }

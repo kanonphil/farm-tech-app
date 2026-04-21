@@ -15,9 +15,7 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { axiosInstance } from './axiosInstance';
 import { Notification } from '@/src/types';
-
-// 서버 기본 URL (axiosInstance의 baseURL과 동일하게 맞춰야 합니다)
-const BASE_URL = 'http://10.0.2.2:8080';
+import { BASE_URL } from '../constants';
 
 // ─────────────────────────────────────────────
 // SSE 실시간 알림 연결
@@ -57,11 +55,12 @@ export const connectNotificationStream = (
 
     headers: {
       // 웹과 달리 헤더로 토큰을 전달합니다 (쿼리 파라미터보다 안전)
-      Authorization: token,
+      Authorization: `Bearer ${token}`,
     },
 
     // AbortController의 signal을 전달해서 abort() 시 연결이 끊기도록 합니다
     signal: controller.signal,
+    openWhenHidden: true,  // ← React Native에 document가 없으므로 필수
 
     /**
      * 서버에서 이벤트가 올 때 실행되는 핸들러
