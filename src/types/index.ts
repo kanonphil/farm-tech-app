@@ -234,6 +234,8 @@ export interface CreateOrderRequest {
   orderDTO: {
     /** 선택된 상품 전체 합산 금액 */
     orderTotalPrice: number
+    deliveryAddr: string
+    deliveryAddrDetail: string
   }
   orderItemDTOList: OrderItemRequest[]
 }

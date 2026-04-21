@@ -127,6 +127,7 @@ export default function CartScreen() {
   
   return (
     <AuthGuard redirectTo='/(tabs)/cart'>
+      
       {/* ── 헤더 ────────────────────────────────── */}
       <View 
         className='flex-row items-center border-b border-[#eee] bg-white px-4 py-4'
