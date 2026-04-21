@@ -87,7 +87,7 @@ export default function NotificationScreen() {
           <FlatList 
             data={notifications}
             keyExtractor={(item) => String(item.notificationId)}
-            renderItem={({ item }) => ()}
+            renderItem={({ item }) => (<NotificationItem notification={item} onPress={handlePress} />)}
           />
         )}
       </ScreenWrapper>
@@ -100,8 +100,8 @@ export default function NotificationScreen() {
 // ─────────────────────────────────────────────
 
 type NotificationItemProps = {
-  notification: Notification
-  onPress: (notification: Notification) => void
+  notification: UserNotification
+  onPress: (notification: UserNotification) => void
 }
 
 /**
