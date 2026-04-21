@@ -1,3 +1,4 @@
+import { logout } from '@/src/api/authApi'
 import AppButton from '@/src/components/common/AppButton'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import useAuthStore from '@/src/store/authStore'
@@ -18,7 +19,11 @@ export default function MypageScreen() {
   //로그아웃 함수 가져오기
   const {clearToken} =useAuthStore()
   const handleLogout = async() => {
-    // 토큰 삭제 -> 비로그인 상태로 전환
+    try {
+      await logout() // 서버에서 Refresh Token 무효화
+    } catch {
+      // 서버 오류가 있어도 로컬 토큰은 삭제
+    }
     await clearToken()
   }
   if(!token){
