@@ -3,51 +3,6 @@ import { CartItem } from "../types";
 import useAuthStore from "../store/authStore";
 import { deleteCartItems, getCartItems, updateCartItemQty } from "../api/cartApi";
 
-// ─────────────────────────────────────────────
-// 개발용 더미 데이터
-// 로그인 구현 완료 후 IS_DEV = false 로 변경하세요
-// ─────────────────────────────────────────────
-const IS_DEV = true
-
-const DUMMY_CART_ITEMS: CartItem[] = [
-  {
-    cartItemId: 1,
-    cartId: 1,
-    productId: 1,
-    cartItemQty: 2,
-    product: {
-      productId: 1,
-      categoryId: 1,
-      productName: '1++ 한우 등심 200g',
-      productPrice: 45000,
-      productStock: 10,
-      productDesc: '최상급 한우 등심입니다.',
-      productStatus: 'ACTIVE',
-      mainImgUrl: 'https://placehold.co/200x200/png',
-      subImgUrls: [],
-      detailImgUrl: '',
-    },
-  },
-  {
-    cartItemId: 2,
-    cartId: 1,
-    productId: 2,
-    cartItemQty: 1,
-    product: {
-      productId: 2,
-      categoryId: 1,
-      productName: '한우 갈비살 500g',
-      productPrice: 78000,
-      productStock: 5,
-      productDesc: '부드러운 한우 갈비살입니다.',
-      productStatus: 'ACTIVE',
-      mainImgUrl: 'https://placehold.co/200x200/png',
-      subImgUrls: [],
-      detailImgUrl: '',
-    },
-  },
-]
-
 /**
  * 장바구니 상태 및 액션을 관리하는 커스텀 훅
  *
@@ -56,18 +11,14 @@ const DUMMY_CART_ITEMS: CartItem[] = [
  *  2. 수량 변경 / 선택 삭제 액션을 처리합니다.
  *  3. authStore의 cartCount를 동기화합니다. (탭 뱃지에 반영)
  *
- * 화면(cart.tsx)에서 이 훅만 호출하면 API 로직을 몰라도 됩니다.
- * 이처럼 UI와 로직을 분리하는 패턴을 "관심사 분리"라고 합니다.
- *
  * 사용 예시:
  *   const { cartItems, isLoading, fetchCart, updateQty, deleteItems } = useCart()
  */
-
 export default function useCart() {
   /** 장바구니 상품 목록 */
   const [cartItems, setCartItems] = useState<CartItem[]>([])
 
-  /** 최초 로딩 여부 (스켈레톤 UI 표시용) */
+  /** 로딩 여부 (스켈레톤 UI 표시용) */
   const [isLoading, setIsLoading] = useState(false)
 
   /** 에러 메시지 */
@@ -94,8 +45,7 @@ export default function useCart() {
     setError(null)
 
     try {
-      // 개발중 더미 데이터 사용
-      const items = IS_DEV ? DUMMY_CART_ITEMS : await getCartItems()
+      const items = await getCartItems()
       setCartItems(items)
 
       /**
