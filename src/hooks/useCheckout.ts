@@ -75,7 +75,10 @@ export default function useCheckout(cartItemIds: number[]) {
    *
    * @returns 성공 시 tossOrderId 문자열, 실패 시 null
    */
-  const submitOrder = useCallback(async (): Promise<string | null> => {
+  const submitOrder = useCallback(async (
+    deliveryAddr: string,
+    deliveryAddrDetail: string
+  ): Promise<string | null> => {
     setIsSubmitting(true)
 
     try {
@@ -88,7 +91,11 @@ export default function useCheckout(cartItemIds: number[]) {
       }))
 
       const request: CreateOrderRequest = {
-        orderDTO: { orderTotalPrice: totalPrice },
+        orderDTO: { 
+          orderTotalPrice: totalPrice,
+          deliveryAddr,
+          deliveryAddrDetail,
+        },
         orderItemDTOList,
       }
 

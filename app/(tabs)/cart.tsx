@@ -122,90 +122,100 @@ export default function CartScreen() {
   }, [selectedIds])
 
   // ─────────────────────────────────────────────
-  // 렌더링 분기
+  // 렌더링
   // ─────────────────────────────────────────────
-
-  if (isLoading) return <LoadingSpinner full />
-
-  if (error) {
-    return (
-      <ScreenWrapper edges={[ 'top' ]}>
-        <View className='flex-1 items-center justify-center'>
-          <Text className='text-base text-[#999]'>{error}</Text>
-        </View>
-      </ScreenWrapper>
-    )
-  }
-
-  if (cartItems.length === 0) {
-    return (
-      <ScreenWrapper edges={[ 'top' ]}>
-        <View className='flex-1 items-center justify-center'>
-          <Ionicons name='cart-outline' size={48} color={Colors.textMuted} />
-          <Text className='text-base text-[#999]'>장바구니가 비어있습니다.</Text>
-        </View>
-      </ScreenWrapper>
-    )
-  }
   
   return (
-    // AuthGuard는 로그인 구현 전까지 주석 처리 후 개발, 완성 후 해제
-    // <AuthGuard redirectTo='/(tabs)/cart'>
-      <ScreenWrapper edges={['top']}>
+    <AuthGuard redirectTo='/(tabs)/cart'>
+      
+      {/* ── 헤더 ────────────────────────────────── */}
+      <View 
+        className='flex-row items-center border-b border-[#eee] bg-white px-4 py-4'
+        style={{ paddingVertical: 24 }}
+      >
+        <TouchableOpacity
+          onPress={() => router.back()}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          className='mr-3'
+        >
+          <Ionicons name='arrow-back' size={24} color={Colors.textPrimary} />
+        </TouchableOpacity>
 
-        {/* ── 상단 선택/삭제 바 ──────────────────── */}
-        <View className='flex-row items-center justify-between border-b border-[#eee] bg-white px-4 py-2'>
-          {/* 전체선택 체크박스 */}
-          <TouchableOpacity
-            onPress={handleSelectAll}
-            className='flex-row items-center'
-          >
-            <Ionicons 
-              name={isAllSelected ? 'checkbox' : 'square-outline'}
-              size={22}
-              color={isAllSelected ? Colors.primary : Colors.textMuted}
-            />
-            <Text className='ml-2 text-sm text-[#555]'>
-              전체선택 ({selectedIds.size}/{cartItems.length})
-            </Text>
-          </TouchableOpacity>
+        <Text className='text-base font-bold text-[#1a1a1a]'>장바구니</Text>
+      </View>
+      {isLoading ? (
+        <LoadingSpinner full />
+      ) : error ? (
+        <ScreenWrapper edges={['top']}>
+          <View className='flex-1 items-center justify-center'>
+            <Text className='text-base text-[#999]'>{error}</Text>
+          </View>
+        </ScreenWrapper>
+      ) : cartItems.length === 0 ? (
+        <ScreenWrapper edges={['top']}>
+          <View className='flex-1 items-center justify-center'>
+            <Ionicons name='cart-outline' size={48} color={Colors.textMuted} />
+            <Text className='mt-3 text-base text-[#999]'>장바구니가 비어있습니다.</Text>
+          </View>
+        </ScreenWrapper>
+      ) : (
+        <ScreenWrapper edges={['top']}>
 
-          {/* 선택삭제 — 선택된 항목이 있을 때만 표시 */}
-          {selectedIds.size > 0 && (
-            <TouchableOpacity onPress={handleDeleteSelected}>
-              <Text className="text-sm text-[#999]">선택삭제</Text>
+          {/* ── 상단 선택/삭제 바 ──────────────────── */}
+          <View className='flex-row items-center justify-between border-b border-[#eee] bg-white px-4 py-2'>
+            {/* 전체선택 체크박스 */}
+            <TouchableOpacity
+              onPress={handleSelectAll}
+              className='flex-row items-center'
+            >
+              <Ionicons 
+                name={isAllSelected ? 'checkbox' : 'square-outline'}
+                size={22}
+                color={isAllSelected ? Colors.primary : Colors.textMuted}
+              />
+              <Text className='ml-2 text-sm text-[#555]'>
+                전체선택 ({selectedIds.size}/{cartItems.length})
+              </Text>
             </TouchableOpacity>
-          )}
-        </View>
 
-        {/* ── 장바구니 목록 ──────────────────────── */}
-        {/**
-         * FlatList: 긴 목록을 성능 좋게 렌더링합니다.
-         * ScrollView와 달리 화면 밖 항목을 메모리에서 해제하고
-         * 보이는 항목만 렌더링해서 메모리를 아낍니다.
-         */}
-        <FlatList 
-          data={cartItems}
-          keyExtractor={(item) => String(item.cartItemId)}
-          renderItem={({ item }) => (
-            <CartItemCard 
-              item={item}
-              isSelected={selectedIds.has(item.cartItemId)}
-              onSelect={handleSelect}
-              onQtyChange={updateQty}
-              onDelete={handleDeleteOne}
-            />
-          )}
-        />
+            {/* 선택삭제 — 선택된 항목이 있을 때만 표시 */}
+            {selectedIds.size > 0 && (
+              <TouchableOpacity onPress={handleDeleteSelected}>
+                <Text className="text-sm text-[#999]">선택삭제</Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
-        {/* ── 하단 결제 요약 ─────────────────────── */}
-        <CartSummary
-          selectedCount={selectedIds.size}
-          totalPrice={totalPrice}
-          onCheckout={handleCheckout}
-        />
+          {/* ── 장바구니 목록 ──────────────────────── */}
+          {/**
+           * FlatList: 긴 목록을 성능 좋게 렌더링합니다.
+           * ScrollView와 달리 화면 밖 항목을 메모리에서 해제하고
+           * 보이는 항목만 렌더링해서 메모리를 아낍니다.
+           */}
+          <FlatList 
+            data={cartItems}
+            keyExtractor={(item) => String(item.cartItemId)}
+            renderItem={({ item }) => (
+              <CartItemCard 
+                item={item}
+                isSelected={selectedIds.has(item.cartItemId)}
+                onSelect={handleSelect}
+                onQtyChange={updateQty}
+                onDelete={handleDeleteOne}
+              />
+            )}
+          />
 
-      </ScreenWrapper>
-    // </AuthGuard>
+          {/* ── 하단 결제 요약 ─────────────────────── */}
+          <CartSummary
+            selectedCount={selectedIds.size}
+            totalPrice={totalPrice}
+            onCheckout={handleCheckout}
+          />
+
+        </ScreenWrapper>
+      )}
+      
+    </AuthGuard>
   )
 }
