@@ -12,6 +12,7 @@
  * 6. AlertModal, Toast                   — 전역 알림 UI를 Stack과 함께 렌더링
  */
 
+import '@/src/polyfills'; // document 폴리필 - 반드시 첫 번째 import여야 합니다
 import React, { useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { Stack } from 'expo-router';
