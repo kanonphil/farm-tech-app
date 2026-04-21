@@ -46,6 +46,8 @@ export const connectNotificationStream = (
   // AbortController: SSE 연결을 강제로 끊을 때 사용합니다.
   // controller.abort()를 호출하면 fetchEventSource가 연결을 종료합니다.
   const controller = new AbortController();
+  let retryCount = 0;
+  const MAX_RETRY = 5;
 
   // fetchEventSource는 Promise를 반환하지만
   // SSE는 계속 연결을 유지하는 특성상 await하지 않습니다.
@@ -88,8 +90,12 @@ export const connectNotificationStream = (
      * throw를 하면 재연결을 중단합니다.
      */
     onerror(err) {
-      console.warn("[SSE] 연결 오류, 자동 재연결 시도 중:", err);
-      // throw하지 않으면 fetchEventSource가 자동으로 재연결합니다
+      retryCount++;
+      console.warn(`[SSE] 연결 오류 (${retryCount}/${MAX_RETRY}회):`, err);
+      if (retryCount >= MAX_RETRY) {
+        console.warn("[SSE] 최대 재연결 횟수 초과, 연결 중단");
+        throw err; // throw하면 재연결 중단
+      }
     },
 
     /** 서버가 연결을 정상적으로 닫았을 때 */
