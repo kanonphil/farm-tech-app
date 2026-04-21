@@ -127,6 +127,21 @@ export default function CartScreen() {
   
   return (
     <AuthGuard redirectTo='/(tabs)/cart'>
+      {/* ── 헤더 ────────────────────────────────── */}
+      <View 
+        className='flex-row items-center border-b border-[#eee] bg-white px-4 py-4'
+        style={{ paddingVertical: 24 }}
+      >
+        <TouchableOpacity
+          onPress={() => router.back()}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          className='mr-3'
+        >
+          <Ionicons name='arrow-back' size={24} color={Colors.textPrimary} />
+        </TouchableOpacity>
+
+        <Text className='text-base font-bold text-[#1a1a1a]'>장바구니</Text>
+      </View>
       {isLoading ? (
         <LoadingSpinner full />
       ) : error ? (
