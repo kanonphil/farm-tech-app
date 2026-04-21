@@ -183,7 +183,7 @@ const RootLayout = () => {
         <Stack.Screen name='order/complete' />
         
         {/* 알림 목록 - 추후 헤더 벨 아이콘에서 이동 */}
-        <Stack.Screen name='norification' />
+        <Stack.Screen name='notification' />
         
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>

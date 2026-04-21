@@ -123,7 +123,7 @@ export default function CheckoutScreen() {
   // ─────────────────────────────────────────────
   
   return (
-    // <AuthGuard redirectTo='/order/checkout'>
+    <AuthGuard redirectTo='/order/checkout'>
       <ScreenWrapper scroll edges={[ 'top' ]}>
 
         {/* ── 헤더 ────────────────────────────────── */}
@@ -237,7 +237,7 @@ export default function CheckoutScreen() {
         </View>
         
       </ScreenWrapper>
-    // </AuthGuard>
+    </AuthGuard>
   )
 }
 
