@@ -50,6 +50,7 @@ export default {
       ],
       'expo-secure-store',
       'expo-web-browser',
+      "@react-native-community/datetimepicker",
     ],
     experiments: {
       typedRoutes: true,
