@@ -1,18 +1,83 @@
+import { getMyInfo } from '@/src/api/authApi'
 import AuthGuard from '@/src/components/auth/AuthGuard'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
-import React from 'react'
-import { Text } from 'react-native'
+import { Colors } from '@/src/constants/colors'
+import useAuthStore from '@/src/store/authStore'
+import { Member } from '@/src/types'
+import { Ionicons } from '@expo/vector-icons'
+import { router, useFocusEffect } from 'expo-router'
+import React, { useCallback, useState } from 'react'
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
+
+/** 레이블 + 값 한 행 */
+function InfoRow({ label, value }: {
+  label: string
+  value: string 
+}) {
+  return (
+    <View className='flex-row items-center justify-between py-3.5 border-b border-[#f0f0f0]'>
+      <Text className='text-sm text-[#888] w-24'>{label}</Text>
+      <Text className='flex-1 text-sm text-[#1a1a1a] text-right'>{value || '-'}</Text>
+    </View>
+  )
+}
 
 /**
  * 내 정보 수정 페이지
- * TODO: UI 및 로직 구현 필요
  */
 export default function ProfileScreen() {
+  const [member, setMember] = useState<Member | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const showToast = useAuthStore((state) => state.showToast)
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      setMember(await getMyInfo())
+    } catch (error) {
+      showToast('정보를 불러오지 못했습니다.')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [showToast])
+
+  useFocusEffect(useCallback(() => {
+    loadData()
+  }, [loadData]))
+  
   return (
-    <AuthGuard redirectTo='/mypage/profile'>
-      <ScreenWrapper edges={['bottom']}>
-        <Text className="text-base text-gray-400">내 정보 수정 페이지</Text>
-      </ScreenWrapper>
-    </AuthGuard>
+    <ScreenWrapper edges={['top']}>
+      {/* 헤더 */}
+      <View className='flex-row items-center border-b border-[#eee] bg-white px-4 py-4'>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          className='mr-3'
+        >
+          <Ionicons name='arrow-back' size={24} color={Colors.textPrimary} />
+        </TouchableOpacity>
+        <Text className='flex-1 text-base font-bold text-[#1a1a1a]'>내 정보</Text>
+        <TouchableOpacity
+          onPress={() => router.push('/mypage/edit-profile')}
+        >
+          <Text style={{ color: Colors.primary }} className='text-sm'>수정</Text>
+        </TouchableOpacity>
+      </View>
+
+      {isLoading ? (
+        <View className='flex-1 items-center justify-center'>
+          <ActivityIndicator color={Colors.primary} />
+        </View>
+      ) : (
+        <View className='bg-white px-4 mt-2'>
+          <InfoRow label='이름' value={member?.memberName ?? ''} />
+          <InfoRow label='이메일' value={member?.memberEmail ?? ''} />
+          <InfoRow label='전화번호' value={member?.memberPhone ?? ''} />
+          <InfoRow label='생년월일' value={member?.memberBirth ?? ''} />
+          <InfoRow label='주소' value={member?.memberAddr ?? ''} />
+          <InfoRow label='상세주소' value={member?.memberAddrDetail ?? ''} />
+        </View>
+      )}
+    </ScreenWrapper>
   )
 }
