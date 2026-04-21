@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 
 import useAuth from '@/src/hooks/useAuth'
 import requireAuthAction from '@/src/utils/requireAuthAction'
-import { addCartItem } from '@/src/api/cartApi'
+import { addCartItem, getCartItems, updateCartItemQty } from '@/src/api/cartApi'
 import { getProductDetail } from '@/src/api/productApi'
 import type { ProductDetail } from '@/src/types'
 import useAuthStore from '@/src/store/authStore'
@@ -243,26 +243,37 @@ export default function ProductDetailScreen() {
    * - 로그인 여부 확인
    * - 주문/결제 페이지로 이동
    */
-  const handleBuyNow = () => {
-    if (isSoldOut) {
-      showToast('품절된 상품입니다.')
-      return
-    }
-
-    if (cnt > stock) {
-      showToast('재고 수량을 초과했습니다.')
-      return
-    }
+  const handleBuyNow = async () => {
+    if (isSoldOut) { showToast('품절된 상품입니다.'); return }
+    if (cnt > stock) { showToast('재고 수량을 초과했습니다.'); return }
 
     const canProceed = requireAuthAction({
       isLoggedIn,
       redirectTo: `/product/${id}`,
       message: '구매는 로그인 후 이용할 수 있습니다.',
     })
-
     if (!canProceed) return
 
-    router.push(`/order/checkout?productId=${product.productId}&cnt=${cnt}`)
+    try {
+      // 1. 기존 장바구니 조회
+      const cartItems = await getCartItems()
+      const existingItem = cartItems.find(item => item.productId === product.productId)
+
+      if (existingItem) {
+        // 이미 있으면 수량을 cnt로 덮어씌우기
+        await updateCartItemQty({ cartItemId: existingItem.cartItemId, cartItemQty: cnt })
+        router.push(`/order/checkout?cartItemIds=${existingItem.cartItemId}`)
+      } else {
+        // 없으면 새로 추가 후 cartItemId 찾기
+        await addCartItem({ productId: product.productId, cartItemQty: cnt })
+        const updated = await getCartItems()
+        const cartItem = updated.find(item => item.productId === product.productId)
+        if (!cartItem) { showToast('주문 처리 중 오류가 발생했습니다.'); return }
+        router.push(`/order/checkout?cartItemIds=${cartItem.cartItemId}`)
+      }
+    } catch {
+      showToast('주문 처리 중 오류가 발생했습니다.')
+    }
   }
 
   //스낵바 표시/숨김 함수
