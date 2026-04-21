@@ -182,12 +182,14 @@ export default function TossPaymentWebView({
      * 예) intent://pay#Intent;scheme=kakaobank;package=com.kakaobank.channel;end
      *
      * Linking.openURL()은 intent:// URL을 직접 처리 못하기 때문에
-     * URL에서 scheme을 추출해 직접 앱 스킴으로 열거나
-     * 앱이 없을 때는 Play Store로 폴백합니다.
+     * URL에서 scheme을 추출해 직접 앱 스킴으로 엽니다.
+     *
+     * ⚠️ Play Store 폴백(market://)은 사용하지 않습니다.
+     *    - 에뮬레이터/구글 계정 미로그인 환경에서 Play Store 로그인 화면이 뜨는 문제 방지
+     *    - 앱이 없으면 무시하고 Toss SDK가 웹 결제 방식으로 자동 전환됩니다
      */
     if (url.startsWith('intent://')) {
       const schemeMatch = url.match(/scheme=([^;]+)/)
-      const packageMatch = url.match(/package=([^;]+)/)
 
       if (schemeMatch) {
         // intent://pay#Intent;scheme=kakaobank;... → kakaobank://pay
@@ -195,18 +197,8 @@ export default function TossPaymentWebView({
           .replace('intent://', `${schemeMatch[1]}://`)
           .split('#')[0]
 
-        Linking.openURL(schemeUrl).catch(() => {
-          // 앱이 없으면 Play Store로 폴백
-          if (packageMatch) {
-            Linking.openURL(
-              `market://details?id=${packageMatch[1]}`
-            ).catch(() => {})
-          }
-        })
-      } else if (packageMatch) {
-        Linking.openURL(
-          `market://details?id=${packageMatch[1]}`
-        ).catch(() => {})
+        // 앱이 설치된 경우에만 열림 — 없으면 조용히 무시
+        Linking.openURL(schemeUrl).catch(() => {})
       }
 
       return false
