@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Dimensions, Image, Pressable, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'expo-router'
 import { ProductListItem } from '@/src/types'
@@ -43,14 +43,33 @@ const HomeRecommend = () => {
   }
 
   return (
-    <View>
-      <Text>추천 상품 🔥</Text>
+    <View style={styles.container}>
+      <Text style={styles
+        .title
+      }>추천 상품 🔥</Text>
 
       <FlatList 
         data={products}
         keyExtractor={(item) => String(item.productId)}
         horizontal
-        show
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.listContainer}
+        renderItem={({item}) => (
+          <Pressable
+            style={styles.card}
+            onPress={()=>router.push(`/product/${item.productId}`)}
+          >
+            <Image
+              source={{uri : item.mainImage}}
+              style={styles.image}
+              resizeMode='contain'
+            />
+            <View style={styles.info}>
+              <Text style={styles.name} numberOfLines={2}>{item.productName}</Text>
+              <Text style={styles.price}>{formatPrice(item.productPrice)}</Text>
+            </View>
+          </Pressable>
+        )}
       />
 
     </View>
@@ -59,4 +78,49 @@ const HomeRecommend = () => {
 
 export default HomeRecommend
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container : {
+    marginVertical : 12
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.textPrimary,
+    paddingHorizontal: 16,
+    marginBottom: 10,
+  },
+  listContainer: {
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  card: {
+    width: CARD_WIDTH,
+    backgroundColor: Colors.bgWhite,
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  image: {
+    width: '100%',
+    height: CARD_WIDTH,  // 정사각형
+  },
+  info: {
+    padding: 10,
+    gap: 4,
+  },name: {
+    fontSize: 13,
+    color: Colors.textPrimary,
+    fontWeight: '500',
+  },
+  price: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: Colors.primary,
+  },
+  loadingBox: {
+    height: 180,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+})

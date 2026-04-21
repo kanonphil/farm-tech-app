@@ -90,6 +90,7 @@ export const connectNotificationStream = (
      */
     onerror(err) {
       console.warn('[SSE] 연결 오류, 자동 재연결 시도 중:', err);
+      throw err
       // throw하지 않으면 fetchEventSource가 자동으로 재연결합니다
     },
 

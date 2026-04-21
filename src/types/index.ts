@@ -87,6 +87,16 @@ export interface ProductListItem {
   salesCount: number;
 }
 
+// ProductDetail 위에 추가
+export interface ProductImage {
+  imageId: number;
+  productId: number;
+  imageOriginName: string;
+  imageSavedName: string;        // 실제 S3 URL
+  imageType: 'MAIN' | 'DETAIL' | 'SUB';
+  imageOrder: number;
+}
+
 /**
  * 상품 상세 페이지에서 보여주는 전체 상품 정보 (ProductDTO 기준)
  * subImgUrls: 서브 이미지 파일명 배열
@@ -99,9 +109,8 @@ export interface ProductDetail {
   productStock: number;
   productDesc: string;
   productStatus: 'ACTIVE' | 'INACTIVE';
-  mainImgUrl: string;
-  subImgUrls: string[];
-  detailImgUrl: string;
+  productCreatedAt: string;
+  productImageList: ProductImage[];
 }
 
 /**
