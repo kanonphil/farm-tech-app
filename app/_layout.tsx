@@ -179,10 +179,11 @@ const RootLayout = () => {
 
         {/* 주문/결제 플로우 - 장바구니에서 주문하기 클릭 시 이동 */}
         <Stack.Screen name='order/checkout' />
+        <Stack.Screen name='order/payment' />
         <Stack.Screen name='order/complete' />
         
         {/* 알림 목록 - 추후 헤더 벨 아이콘에서 이동 */}
-        <Stack.Screen name='norification' />
+        <Stack.Screen name='notification' />
         
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>

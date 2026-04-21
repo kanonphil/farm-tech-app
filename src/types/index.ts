@@ -348,3 +348,39 @@ export interface DaumAddressData {
   sido: string              // 시/도
   sigungu: string           // 시/군/구
 }
+
+// ─────────────────────────────────────────────
+// 결제 관련 타입
+// ─────────────────────────────────────────────
+
+/**
+ * 결제 확인 요청 DTO
+ * 백엔드 PaymentConfirmRequestDTO와 1:1 매핑
+ * POST /api/payments/confirm
+ */
+export interface PaymentConfirmRequest {
+  paymentKey: string  // Toss가 발급한 결제 키
+  orderId: string     // POST /orders에서 받은 tossOrderId
+  amount: number      // 결제 금액 (서버에서 위변조 검증)
+}
+
+/**
+ * 결제 확인 응답 DTO
+ * 백엔드 TossConfirmResponseDTO와 1:1 매핑
+ */
+export interface PaymentConfirmResponse {
+  paymentKey: string
+  orderId: string
+  status: string       // 성공 시 "DONE"
+  totalAmount: number
+  method: string       // 결제 수단 (카드, 가상계좌 등)
+}
+
+/**
+ * Toss successUrl 리다이렉트 시 전달되는 쿼리 파라미터
+ */
+export interface TossSuccessParams {
+  paymentKey: string
+  orderId: string
+  amount: string  // URL 파라미터는 문자열
+}
