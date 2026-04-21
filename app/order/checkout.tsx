@@ -12,7 +12,7 @@ import { DaumAddressData, Member } from '@/src/types'
 import { formatPrice } from '@/src/utils/format'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 /**
@@ -48,10 +48,12 @@ export default function CheckoutScreen() {
    * '1,2,3' → [1, 2, 3]
    * Number()가 NaN을 반환하는 경우를 filter(Boolean)로 제거
    */
-  const cartItemIds = (cartItemIdsParam ?? '')
+  const cartItemIds = useMemo(
+    () => (cartItemIdsParam ?? '')
     .split(',')
     .map(Number)
-    .filter(Boolean)
+    .filter(Boolean), []
+  )
 
   // ─────────────────────────────────────────────
   // 훅 & 상태

@@ -1,24 +1,21 @@
-import ScreenWrapper from '@/src/components/common/ScreenWrapper'
-import HomeBanner from '@/src/components/home/HomeBanner'
+import React from 'react'
+import { StyleSheet } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import HomeHeader from '@/src/components/home/HomeHeader'
-import HomeRecommend from '@/src/components/home/HomeRecommend'
-import HomeSortBar from '@/src/components/home/HomeSortBar'
-import React, { useState } from 'react'
-import { Text } from 'react-native'
+import HomeProductGrid from '@/src/components/home/HomeProductGrid'
 
-/**
- * 홈 페이지 (상품 목록)
- * TODO: UI 및 로직 구현 필요
- */
 export default function HomeScreen() {
-  // 현재 선택된 정렬 값
-  const [sort, setSort] = useState<string | null>(null)
   return (
-    <ScreenWrapper edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <HomeHeader />
-      <HomeBanner />
-      <HomeRecommend />
-      <HomeSortBar onSortChange={(value) => setSort(value)}/>
-    </ScreenWrapper>
+      <HomeProductGrid />
+    </SafeAreaView>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f9f9f9',
+  },
+})
