@@ -1,10 +1,13 @@
 {
   "permissions": {
     "allow": [
+      "Bash(where mysqldump)",
       "Bash(awk '{print $NF}')",
       "Bash(xargs wc *)",
       "mcp__notionApi__API-post-search",
       "mcp__notionApi__API-get-block-children",
+      "mcp__notionApi__API-post-page",
+      "mcp__notionApi__API-patch-block-children",
       "mcp__notionApi__API-query-data-source"
     ]
   }
