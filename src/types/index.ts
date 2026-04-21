@@ -126,6 +126,18 @@ export interface Category {
 // =============================
 
 /**
+ * 장바구니에서 사용하는 간략한 상품 정보
+ * cartApi.ts에서 productImageList[0].imageSavedName → mainImgUrl로 변환됨
+ */
+export interface CartProduct {
+  productId: number;
+  productName: string;
+  productPrice: number;
+  productStock: number;
+  mainImgUrl: string;
+}
+
+/**
  * 장바구니 상품 항목 하나 (CartItemDTO 기준)
  * product: 상품 상세 정보가 중첩된 구조로 내려옴
  */
@@ -134,7 +146,7 @@ export interface CartItem {
   cartId: number;
   productId: number;
   cartItemQty: number;        // 수량
-  product: ProductDetail;     // 중첩된 상품 정보
+  product: CartProduct;     // 중첩된 상품 정보
 }
 
 /**
