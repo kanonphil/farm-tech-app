@@ -1,3 +1,4 @@
+import { getMyInfo } from '@/src/api/authApi'
 import AuthGuard from '@/src/components/auth/AuthGuard'
 import AppButton from '@/src/components/common/AppButton'
 import DaumPostcodeModal from '@/src/components/common/DaumPostcodeModal'
@@ -6,12 +7,13 @@ import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import OrderItemRow from '@/src/components/order/OrderItemRow'
 import { Colors } from '@/src/constants/colors'
 import useCheckout from '@/src/hooks/useCheckout'
-import { DaumAddressData } from '@/src/types'
+import useAuthStore from '@/src/store/authStore'
+import { DaumAddressData, Member } from '@/src/types'
 import { formatPrice } from '@/src/utils/format'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import React, { useCallback, useState } from 'react'
-import { Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 /**
  * 주문/결제 화면
@@ -66,6 +68,17 @@ export default function CheckoutScreen() {
   /** 주소 검색 모달 표시 여부 */
   const [isPostcodeVisible, setIsPostcodeVisible] = useState(false)
 
+  /** 내 정보 불러오기 체크 여부 */
+  const [useMyAddress, setUseMyAddress] = useState(false)
+
+  /** 불러온 회원 정보 */
+  const [memberInfo, setMemberInfo] = useState<Member | null>(null)
+
+  /** 회원 정보 로딩 중 */
+  const [isFetchingInfo, setIsFetchingInfo] = useState(false)
+
+  const showToast = useAuthStore((state) => state.showToast)
+
   // ─────────────────────────────────────────────
   // 화면 진입 시 아이템 로드
   // ─────────────────────────────────────────────
@@ -85,14 +98,44 @@ export default function CheckoutScreen() {
    * 네비게이션은 훅이 아닌 화면에서 처리합니다. (관심사 분리)
    */
   const handleSubmit = useCallback(async () => {
-    const tossOrderId = await submitOrder()
+    const addr = useMyAddress
+      ? memberInfo!.memberAddr
+      : `[${selectedAddress!.zonecode}] ${selectedAddress!.roadAddress}`
+
+    const detail = useMyAddress ? memberInfo!.memberAddrDetail : detailAddress
+
+    const tossOrderId = await submitOrder(addr, detail)
     if (tossOrderId) {
       // 완료 화면으로 이동하면서 tossOrderId를 param으로 전달
       router.push(
         `/order/payment?tossOrderId=${tossOrderId}&amount=${totalPrice}&orderName=한우마루 주문`
       )
     }
-  }, [submitOrder, totalPrice])
+  }, [submitOrder, totalPrice, selectedAddress, detailAddress, useMyAddress, memberInfo])
+
+  /**
+   * 내 정보 불러오기 체크 시 회원 주소 자동 세팅
+   * 체크 해제 시 주소 초기화
+   */
+  const handleUseMyAddress = useCallback(async (checked: boolean) => {
+    setUseMyAddress(checked)
+    if (checked) {
+      setIsFetchingInfo(true)
+      try {
+        const info = await getMyInfo()
+        setMemberInfo(info)
+      } catch {
+        showToast('내 정보를 불러오지 못했습니다.')
+        setUseMyAddress(false)
+      } finally {
+        setIsFetchingInfo(false)
+      }
+    } else {
+      setMemberInfo(null)
+      setSelectedAddress(null)
+      setDetailAddress('')
+    }
+  }, [showToast])
 
   // ─────────────────────────────────────────────
   // 렌더링 분기
@@ -150,35 +193,62 @@ export default function CheckoutScreen() {
 
         <View className="bg-white px-4 py-3 gap-y-3">
 
-          {/* 주소 검색 버튼 */}
+          {/* 내 정보 불러오기 체크박스 */}
           <TouchableOpacity
-            onPress={() => setIsPostcodeVisible(true)}
-            className="flex-row items-center justify-between rounded-lg border border-[#ddd] px-3 py-2.5"
+            onPress={() => handleUseMyAddress(!useMyAddress)}
+            className='flex-row items-center gap-x-2'
+            activeOpacity={0.7}
           >
-            <Text className={selectedAddress ? 'text-sm text-[#1a1a1a]' : 'text-sm text-[#bbb]'}>
-              {selectedAddress ? `[${selectedAddress.zonecode}] ${selectedAddress.roadAddress}` : '주소를 검색해주세요'}
-            </Text>
-            <Ionicons name="search" size={18} color={Colors.textMuted} />
+            <Ionicons 
+              name={useMyAddress ? 'checkbox' : 'checkbox-outline'}
+              size={20}
+              color={useMyAddress ? Colors.primary : Colors.textMuted}
+            />
+            <Text className='text-sm text-[#555]'>내 정보 불러오기</Text>
+            {isFetchingInfo && (
+              <ActivityIndicator size='small' color={Colors.primary} />
+            )}
           </TouchableOpacity>
 
-          {/* 건물명 — 있을 때만 표시 */}
-          {selectedAddress?.buildingName ? (
-            <Text className="text-xs text-[#888]">
-              건물명: {selectedAddress.buildingName}
-            </Text>
-          ) : null}
+          {useMyAddress && memberInfo ? (
+            // 회원 주소 읽기 전용 표시
+            <View className='rounded-lg border border-[#ddd] bg-[#f9f9f9] px-3 py-2.5 gap-y-1'>
+              <Text className='text-sm text-[#1a1a1a]'>{memberInfo.memberAddr}</Text>
+              <Text className='text-sm text-[#555]'>{memberInfo.memberAddrDetail}</Text>
+            </View>
+          ) : (
+            <>
+              {/* 주소 검색 버튼 */}
+              <TouchableOpacity
+                onPress={() => setIsPostcodeVisible(true)}
+                className="flex-row items-center justify-between rounded-lg border border-[#ddd] px-3 py-2.5"
+              >
+                <Text className={selectedAddress ? 'text-sm text-[#1a1a1a]' : 'text-sm text-[#bbb]'}>
+                  {selectedAddress ? `[${selectedAddress.zonecode}] ${selectedAddress.roadAddress}` : '주소를 검색해주세요'}
+                </Text>
+                <Ionicons name="search" size={18} color={Colors.textMuted} />
+              </TouchableOpacity>
 
-          {/* 상세 주소 — 기본 주소 선택 후 활성화 */}
-          <TextInput
-            value={detailAddress}
-            onChangeText={setDetailAddress}
-            placeholder={selectedAddress ? '상세 주소를 입력해주세요 (동/호수 등)' : '먼저 주소를 검색해주세요'}
-            placeholderTextColor="#bbb"
-            editable={!!selectedAddress}
-            className={`rounded-lg border px-3 py-2.5 text-sm text-[#1a1a1a] ${
-              selectedAddress ? 'border-[#ddd]' : 'border-[#eee] bg-[#f9f9f9]'
-            }`}
-          />
+              {/* 건물명 — 있을 때만 표시 */}
+              {selectedAddress?.buildingName ? (
+                <Text className="text-xs text-[#888]">
+                  건물명: {selectedAddress.buildingName}
+                </Text>
+              ) : null}
+
+              {/* 상세 주소 — 기본 주소 선택 후 활성화 */}
+              <TextInput
+                value={detailAddress}
+                onChangeText={setDetailAddress}
+                placeholder={selectedAddress ? '상세 주소를 입력해주세요 (동/호수 등)' : '먼저 주소를 검색해주세요'}
+                placeholderTextColor="#bbb"
+                editable={!!selectedAddress}
+                className={`rounded-lg border px-3 py-2.5 text-sm text-[#1a1a1a] ${
+                  selectedAddress ? 'border-[#ddd]' : 'border-[#eee] bg-[#f9f9f9]'
+                }`}
+              />
+            </>
+          )}
 
         </View>
 
@@ -231,7 +301,10 @@ export default function CheckoutScreen() {
             title="결제하기"
             onPress={handleSubmit}
             loading={isSubmitting}
-            disabled={!selectedAddress || !detailAddress.trim() || checkoutItems.length === 0}
+            disabled={
+              checkoutItems.length === 0 || 
+              (useMyAddress ? !memberInfo : !selectedAddress || !detailAddress.trim())
+            }
             size="lg"
           />
         </View>
@@ -252,7 +325,7 @@ export default function CheckoutScreen() {
  */
 function SectionHeader({ title, count }: { title: string; count?: number }) {
   return (
-    <View className="border-b border-[#eee] bg-[#f9f9f9] px-4 py-2">
+    <View className="border-b border-[#eee] bg-[#f9f9f9] px-4 py-4">
       <Text className="text-xs font-semibold text-[#888]">
         {title}
         {count !== undefined && (

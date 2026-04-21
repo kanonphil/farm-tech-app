@@ -1,6 +1,7 @@
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import HomeBanner from '@/src/components/home/HomeBanner'
 import HomeHeader from '@/src/components/home/HomeHeader'
+import HomeRecommend from '@/src/components/home/HomeRecommend'
 import HomeSortBar from '@/src/components/home/HomeSortBar'
 import React, { useState } from 'react'
 import { Text } from 'react-native'
@@ -16,6 +17,7 @@ export default function HomeScreen() {
     <ScreenWrapper edges={['top']}>
       <HomeHeader />
       <HomeBanner />
+      <HomeRecommend />
       <HomeSortBar onSortChange={(value) => setSort(value)}/>
     </ScreenWrapper>
   )

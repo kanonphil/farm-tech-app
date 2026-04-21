@@ -24,6 +24,20 @@ function formatRelativeTime(createdAt: string): string {
   return `${days}일 전`
 }
 
+/** 메시지 내용에 따라 아이콘과 색상 결정 */
+function getIconInfo(message: string): { name: keyof typeof Ionicons.glyphMap; color: string; bg: string } {
+  if (message.includes('배송')) {
+    return { name: 'bicycle-outline', color: '#3b82f6', bg: '#eff6ff' }
+  }
+  if (message.includes('리뷰') || message.includes('답글')) {
+    return { name: 'chatbubble-outline', color: '#8b5cf6', bg: '#f5f3ff' }
+  }
+  if (message.includes('주문') || message.includes('결제')) {
+    return { name: 'receipt-outline', color: '#f59e0b', bg: '#fffbeb' }
+  }
+  return { name: 'notifications-outline', color: '#6b7280', bg: '#f3f4f6' }
+}
+
 /**
  * 알림 목록 화면
  *
@@ -43,7 +57,7 @@ export default function NotificationScreen() {
     // 읽음 처리 실패해도 UI는 제거 - 다음 앱 시작 시 서버에서 재조회 됨
     try {
       await markNotificationAsRead(notification.notificationId)
-    } catch (error) {
+    } finally {
       removeNotification(notification.notificationId)
     }
 
@@ -57,7 +71,10 @@ export default function NotificationScreen() {
       <ScreenWrapper edges={['top']}>
         
         {/* ── 헤더 ────────────────────────────────── */}
-        <View className='flex-row items-center border-b border-[#eee] bg-white px-4 py-3'>
+        <View 
+          className='flex-row items-center border-b border-[#eee] bg-white px-4 py-4'
+          style={{ paddingVertical: 24 }}
+        >
           <TouchableOpacity
             onPress={() => router.back()}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -66,9 +83,8 @@ export default function NotificationScreen() {
             <Ionicons name='arrow-back' size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
 
-          <Text>알림</Text>
+          <Text className='text-base font-bold text-[#1a1a1a]'>알림</Text>
 
-          {/* 읽지 않은 알림 수 뱃지 */}
           {notifications.length > 0 && (
             <View className='ml-2 rounded-full bg-primary px-2 py-0.5'>
               <Text className='text-xs font-bold text-white'>{notifications.length}</Text>
@@ -78,16 +94,20 @@ export default function NotificationScreen() {
 
         {/* ── 빈 상태 ─────────────────────────────── */}
         {notifications.length === 0 ? (
-          <View className='flex-1 items-center justify-center'>
-            <Ionicons name='notifications-off-outline' size={48} color={Colors.textMuted} />
-            <Text>새로운 알림이 없습니다.</Text>
+          <View className='flex-1 items-center justify-center gap-3'>
+            <View className='rounded-full bg-[#f3f4f6] p-5'>
+              <Ionicons name='notifications-off-outline' size={36} color={Colors.textMuted} />
+            </View>
+            <Text className='text-base font-medium text-[#999]'>새로운 알림이 없습니다.</Text>
           </View>
         ) : (
-          // 알림 목록
-          <FlatList 
+          <FlatList
             data={notifications}
             keyExtractor={(item) => String(item.notificationId)}
-            renderItem={({ item }) => (<NotificationItem notification={item} onPress={handlePress} />)}
+            contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 12 }}
+            renderItem={({ item }) => (
+              <NotificationItem notification={item} onPress={handlePress} />
+            )}
           />
         )}
       </ScreenWrapper>
@@ -106,29 +126,44 @@ type NotificationItemProps = {
 
 /**
  * 알림 한 줄 카드
- * 읽지 않은 알림 표시 (파란 점) + 메시지 + 상대 시간
- * link 가 있으면 우측에 chevron 아이콘 표시
  */
 function NotificationItem({ notification, onPress }: NotificationItemProps) {
+  const icon = getIconInfo(notification.message)
+  
   return (
     <TouchableOpacity
       onPress={() => onPress(notification)}
-      className='flex-row items-start border-b border-[#f0f0f0] bg-white px-4 py-4'
-      activeOpacity={0.7}
+      className='mb-2 flex-row items-center rounded-xl bg-white px-4 py-4'
+      style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.06,
+        shadowRadius: 4,
+        elevation: 2,
+      }}
+      activeOpacity={0.75}
     >
-      {/* 읽지 않음 표시 점 */}
-      <View className='mr-3 mt-1.5 h-2 w-2 rounded-full bg-primary' />
+      {/* 타입별 아이콘 */}
+      <View
+        className='mr-3 h-11 w-11 items-center justify-center rounded-full'
+        style={{ backgroundColor: icon.bg }}
+      >
+        <Ionicons name={icon.name} size={22} color={icon.color} />
+      </View>
       
+      {/* 메시지 + 시간 */}
       <View className='flex-1'>
-        <Text className='text-sm leading-5 text-[#1a1a1a]'>{notification.message}</Text>
-        <Text className='mt-1 text-xs text-[#999]'>
+        <Text className='text-sm font-medium leading-5 text-[#1a1a1a]'>
+          {notification.message}
+        </Text>
+        <Text className='mt-0.5 text-xs text-[#aaa]'>
           {formatRelativeTime(notification.createdAt)}
         </Text>
       </View>
 
       {/* link 있을 때만 이동 화살표 표시 */}
       {notification.link ? (
-        <Ionicons name='chevron-forward' size={16} color={Colors.textMuted} className='ml-2 mt-0.5' />
+        <Ionicons name='chevron-forward' size={16} color='#ccc' className='ml-2' />
       ) : null}
     </TouchableOpacity>
   )
