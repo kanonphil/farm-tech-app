@@ -22,9 +22,17 @@ import { AddCartRequest, UpdateCartRequest, CartItem } from '@/src/types';
  * @returns 장바구니 상품 목록 (각 항목 안에 product 정보 중첩)
  */
 export const getCartItems = async (): Promise<CartItem[]> => {
-  const response = await axiosInstance.get<CartItem[]>('/carts/items');
-  return response.data;
-};
+  const response = await axiosInstance.get('/carts/items')
+  return (response.data as any[]).flatMap((cartDTO: any) =>
+    cartDTO.cartItemDTOList.map((item: any) => ({
+      ...item,
+      product: {
+        ...item.product,
+        mainImgUrl: item.product.productImageList?.[0]?.imageSavedName ?? '',
+      },
+    }))
+  )
+}
 
 // ─────────────────────────────────────────────
 // 추가

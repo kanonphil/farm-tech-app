@@ -87,7 +87,7 @@ export default function useCheckout(cartItemIds: number[]) {
         orderItemQty: item.cartItemQty,
         orderItemPrice: item.product.productPrice,
         productName: item.product.productName,
-        imageSavedName: item.product.mainImgUrl.split('/').pop() ?? '',
+        imageSavedName: item.product.mainImgUrl?.split('/').pop() ?? '',
       }))
 
       const request: CreateOrderRequest = {
