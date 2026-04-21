@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Alert, ActivityIndicator, Pressable, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'

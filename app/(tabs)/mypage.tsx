@@ -1,7 +1,7 @@
 import AuthGuard from '@/src/components/auth/AuthGuard'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import React from 'react'
-import { View, Text } from 'react-native'
+import { Text } from 'react-native'
 
 /**
  * 마이페이지 페이지
@@ -9,10 +9,10 @@ import { View, Text } from 'react-native'
  */
 export default function MypageScreen() {
   return (
-    <AuthGuard redirectTo='/(tabs)/mypage'>
+    // <AuthGuard redirectTo='/(tabs)/mypage'>
       <ScreenWrapper edges={['top']}>
         <Text className="text-base text-gray-400">마이페이지 페이지</Text>
       </ScreenWrapper>
-    </AuthGuard>
+    // </AuthGuard>
   )
 }

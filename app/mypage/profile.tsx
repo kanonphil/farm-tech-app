@@ -1,6 +1,7 @@
+import AuthGuard from '@/src/components/auth/AuthGuard'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import React from 'react'
-import { View, Text } from 'react-native'
+import { Text } from 'react-native'
 
 /**
  * 내 정보 수정 페이지
@@ -8,8 +9,10 @@ import { View, Text } from 'react-native'
  */
 export default function ProfileScreen() {
   return (
-    <ScreenWrapper edges={['bottom']}>
-      <Text className="text-base text-gray-400">내 정보 수정 페이지</Text>
-    </ScreenWrapper>
+    <AuthGuard redirectTo='/mypage/profile'>
+      <ScreenWrapper edges={['bottom']}>
+        <Text className="text-base text-gray-400">내 정보 수정 페이지</Text>
+      </ScreenWrapper>
+    </AuthGuard>
   )
 }
