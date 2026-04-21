@@ -17,6 +17,7 @@
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
+    "@tosspayments/widget-sdk-react-native": "^1.5.2",
     "autoprefixer": "^10.5.0",
     "axios": "^1.15.0",
     "expo": "~54.0.33",
