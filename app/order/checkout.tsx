@@ -88,9 +88,11 @@ export default function CheckoutScreen() {
     const tossOrderId = await submitOrder()
     if (tossOrderId) {
       // 완료 화면으로 이동하면서 tossOrderId를 param으로 전달
-      router.push(`/order/complete?tossOrderId=${tossOrderId}`)
+      router.push(
+        `/order/payment?tossOrderId=${tossOrderId}&amount=${totalPrice}&orderName=한우마루 주문`
+      )
     }
-  }, [submitOrder])
+  }, [submitOrder, totalPrice])
 
   // ─────────────────────────────────────────────
   // 렌더링 분기
