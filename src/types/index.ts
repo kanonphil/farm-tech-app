@@ -326,7 +326,7 @@ export interface ReviewStats {
  * isRead: 읽음 여부
  * link: 알림 클릭 시 이동할 경로 (예: "/mypage/reviews?tab=written&reviewId=5")
  */
-export interface Notification {
+export interface UserNotification {
   notificationId: number;
   memberId: number;
   message: string;

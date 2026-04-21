@@ -12,10 +12,10 @@
  *       → fetchEventSource는 커스텀 헤더를 지원하므로 더 안전한 방식 사용 가능
  */
 
-import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { axiosInstance } from './axiosInstance';
-import { Notification } from '@/src/types';
-import { BASE_URL } from '../constants';
+import { UserNotification } from "@/src/types";
+import { fetchEventSource } from "@microsoft/fetch-event-source";
+import { BASE_URL } from "../constants";
+import { axiosInstance } from "./axiosInstance";
 
 // ─────────────────────────────────────────────
 // SSE 실시간 알림 연결
@@ -41,9 +41,8 @@ import { BASE_URL } from '../constants';
  */
 export const connectNotificationStream = (
   token: string,
-  onNotification: (notification: Notification) => void
+  onNotification: (notification: UserNotification) => void,
 ): (() => void) => {
-
   // AbortController: SSE 연결을 강제로 끊을 때 사용합니다.
   // controller.abort()를 호출하면 fetchEventSource가 연결을 종료합니다.
   const controller = new AbortController();
@@ -51,7 +50,7 @@ export const connectNotificationStream = (
   // fetchEventSource는 Promise를 반환하지만
   // SSE는 계속 연결을 유지하는 특성상 await하지 않습니다.
   fetchEventSource(`${BASE_URL}/notifications/stream`, {
-    method: 'GET',
+    method: "GET",
 
     headers: {
       // 웹과 달리 헤더로 토큰을 전달합니다 (쿼리 파라미터보다 안전)
@@ -60,7 +59,7 @@ export const connectNotificationStream = (
 
     // AbortController의 signal을 전달해서 abort() 시 연결이 끊기도록 합니다
     signal: controller.signal,
-    openWhenHidden: true,  // ← React Native에 document가 없으므로 필수
+    openWhenHidden: true, // ← React Native에 document가 없으므로 필수
 
     /**
      * 서버에서 이벤트가 올 때 실행되는 핸들러
@@ -71,14 +70,14 @@ export const connectNotificationStream = (
     onmessage(event) {
       // event.event: 이벤트 타입 (서버에서 지정한 이름)
       // 웹 notificationApi.js의 addEventListener('notification', ...) 와 동일한 역할
-      if (event.event === 'notification') {
+      if (event.event === "notification") {
         try {
           // JSON 문자열을 Notification 객체로 변환
-          const notification: Notification = JSON.parse(event.data);
+          const notification: UserNotification = JSON.parse(event.data);
           // 콜백 실행 → authStore.addNotification()으로 연결됩니다
           onNotification(notification);
         } catch (e) {
-          console.warn('[SSE] 알림 데이터 파싱 오류:', e);
+          console.warn("[SSE] 알림 데이터 파싱 오류:", e);
         }
       }
     },
@@ -89,20 +88,20 @@ export const connectNotificationStream = (
      * throw를 하면 재연결을 중단합니다.
      */
     onerror(err) {
-      console.warn('[SSE] 연결 오류, 자동 재연결 시도 중:', err);
+      console.warn("[SSE] 연결 오류, 자동 재연결 시도 중:", err);
       // throw하지 않으면 fetchEventSource가 자동으로 재연결합니다
     },
 
     /** 서버가 연결을 정상적으로 닫았을 때 */
     onclose() {
-      console.log('[SSE] 서버에서 연결을 종료했습니다.');
+      console.log("[SSE] 서버에서 연결을 종료했습니다.");
     },
   });
 
   // 연결 해제 함수를 반환합니다
   // 로그아웃 또는 컴포넌트 언마운트 시 이 함수를 호출하세요
   return () => {
-    console.log('[SSE] 연결 해제');
+    console.log("[SSE] 연결 해제");
     controller.abort();
   };
 };
@@ -119,9 +118,9 @@ export const connectNotificationStream = (
  * SSE가 끊겨 있는 동안 놓친 알림을 보완합니다.
  * @returns 읽지 않은 알림 목록 배열
  */
-export const getUnreadNotifications = async (): Promise<Notification[]> => {
-  const response = await axiosInstance.get<Notification[]>(
-    '/notifications/unread'
+export const getUnreadNotifications = async (): Promise<UserNotification[]> => {
+  const response = await axiosInstance.get<UserNotification[]>(
+    "/notifications/unread",
   );
   return response.data;
 };
@@ -137,7 +136,7 @@ export const getUnreadNotifications = async (): Promise<Notification[]> => {
  * @param notificationId 읽음 처리할 알림 ID
  */
 export const markNotificationAsRead = async (
-  notificationId: number
+  notificationId: number,
 ): Promise<void> => {
   await axiosInstance.patch(`/notifications/${notificationId}/read`);
 };

@@ -10,12 +10,12 @@
  *   - SecureStore는 OS 수준의 보안 저장소를 사용해 토큰을 안전하게 보관
  */
 
-import { create } from 'zustand';
-import * as SecureStore from 'expo-secure-store';
-import { Notification } from '@/src/types';
+import { UserNotification } from "@/src/types";
+import * as SecureStore from "expo-secure-store";
+import { create } from "zustand";
 
 // SecureStore에서 토큰을 저장할 때 사용하는 키 이름
-const TOKEN_KEY = 'access_token';
+const TOKEN_KEY = "access_token";
 
 // ─────────────────────────────────────────────
 // 타입 정의
@@ -43,7 +43,7 @@ interface AuthStore {
   /** 앱 시작 시 토큰 복원 완료 여부 — false이면 스플래시 유지 */
   isAuthReady: boolean;
   /** 읽지 않은 알림 목록 */
-  notifications: Notification[];
+  notifications: UserNotification[];
   /** 장바구니 상품 개수 (탭 뱃지에 표시) */
   cartCount: number;
   /** 알림 모달 상태 */
@@ -78,8 +78,8 @@ interface AuthStore {
   setCartCount: (countOrFn: number | ((prev: number) => number)) => void;
 
   // 알림 목록
-  setNotifications: (notifications: Notification[]) => void;
-  addNotification: (notification: Notification) => void;
+  setNotifications: (notifications: UserNotification[]) => void;
+  addNotification: (notification: UserNotification) => void;
   removeNotification: (notificationId: number) => void;
 
   // 알림 모달
@@ -96,14 +96,13 @@ interface AuthStore {
 // ─────────────────────────────────────────────
 
 const useAuthStore = create<AuthStore>((set) => ({
-
   // ── 초기 상태 ────────────────────────────────
   token: null,
   isAuthReady: false,
   notifications: [],
   cartCount: 0,
-  alertModal: { show: false, message: '', callback: null },
-  toast: { show: false, message: '' },
+  alertModal: { show: false, message: "", callback: null },
+  toast: { show: false, message: "" },
 
   // ── 토큰 액션 ────────────────────────────────
 
@@ -130,7 +129,7 @@ const useAuthStore = create<AuthStore>((set) => ({
       }
     } catch (e) {
       // SecureStore 읽기 실패 시 그냥 비로그인 상태로 진행
-      console.warn('[AuthStore] 토큰 복원 실패:', e);
+      console.warn("[AuthStore] 토큰 복원 실패:", e);
     } finally {
       // 성공/실패 상관없이 복원 완료 표시
       set({ isAuthReady: true });
@@ -144,9 +143,9 @@ const useAuthStore = create<AuthStore>((set) => ({
   setCartCount: (countOrFn) =>
     set((state) => ({
       cartCount:
-        typeof countOrFn === 'function'
-          ? countOrFn(state.cartCount)  // 함수면 이전 값 기반으로 계산 (예: prev => prev + 1)
-          : countOrFn,                  // 숫자면 그대로 설정
+        typeof countOrFn === "function"
+          ? countOrFn(state.cartCount) // 함수면 이전 값 기반으로 계산 (예: prev => prev + 1)
+          : countOrFn, // 숫자면 그대로 설정
     })),
 
   // ── 알림 목록 ────────────────────────────────
@@ -162,7 +161,7 @@ const useAuthStore = create<AuthStore>((set) => ({
   removeNotification: (notificationId) =>
     set((state) => ({
       notifications: state.notifications.filter(
-        (n) => n.notificationId !== notificationId
+        (n) => n.notificationId !== notificationId,
       ),
     })),
 
@@ -172,14 +171,13 @@ const useAuthStore = create<AuthStore>((set) => ({
     set({ alertModal: { show: true, message, callback: callback ?? null } }),
 
   closeAlert: () =>
-    set({ alertModal: { show: false, message: '', callback: null } }),
+    set({ alertModal: { show: false, message: "", callback: null } }),
 
   // ── 토스트 ───────────────────────────────────
 
   showToast: (message) => set({ toast: { show: true, message } }),
 
-  closeToast: () => set({ toast: { show: false, message: '' } }),
-
+  closeToast: () => set({ toast: { show: false, message: "" } }),
 }));
 
 export default useAuthStore;
