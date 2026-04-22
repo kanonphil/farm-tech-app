@@ -1,12 +1,9 @@
-import { ActivityIndicator, Text, TouchableOpacity, TouchableOpacityProps, } from 'react-native'
+import { ActivityIndicator, Pressable, PressableProps, Text } from 'react-native'
 import React from 'react'
 import { Colors } from '@/src/constants/colors'
 
 /**
  * 공통 버튼 컴포넌트
- *
- * 한우마루 앱 전체에서 사용하는 버튼입니다.
- * variant로 스타일을 선택하고, loading 상태도 지원합니다.
  *
  * @param title    버튼 텍스트
  * @param variant  버튼 스타일 종류
@@ -16,15 +13,8 @@ import { Colors } from '@/src/constants/colors'
  * @param loading  true이면 텍스트 대신 스피너 표시 + 버튼 비활성화
  * @param disabled 버튼 비활성화
  * @param size     버튼 크기 ('sm' | 'md' | 'lg') — 기본값 'md'
- *
- * 사용 예시:
- *   <AppButton title="로그인" onPress={handleLogin} />
- *   <AppButton title="취소" variant="outline" onPress={handleCancel} />
- *   <AppButton title="저장 중..." loading />
- *   <AppButton title="작은 버튼" size="sm" variant="ghost" />
  */
-
-interface AppButtonProps extends TouchableOpacityProps {
+interface AppButtonProps extends PressableProps {
   /** 버튼 텍스트 */
   title: string
   /** 버튼 스타일 - 기본값 'primary' */
@@ -37,10 +27,11 @@ interface AppButtonProps extends TouchableOpacityProps {
 
 export default function AppButton({
   title,
-  variant='primary',
-  loading=false,
-  disabled=false,
-  size='md',
+  variant = 'primary',
+  loading = false,
+  disabled = false,
+  size = 'md',
+  style: externalStyle,
   ...props
 }: AppButtonProps) {
 
@@ -72,29 +63,29 @@ export default function AppButton({
 
   /** 비활성 또는 로딩 중 투명도 */
   const isDisabled = disabled || loading
-  
+
   return (
-    <TouchableOpacity
-      activeOpacity={0.75}
+    <Pressable
       disabled={isDisabled}
+      style={(state) => [
+        { opacity: isDisabled ? 0.5 : state.pressed ? 0.75 : 1 },
+        typeof externalStyle === 'function' ? externalStyle(state) : externalStyle,
+      ]}
       className={[
         'items-center justify-center',
         sizeClass,
         variantContainerClass,
-        isDisabled ? 'opacity-50' : 'opacity-100',
       ].join(' ')}
       {...props}
     >
       {loading ? (
-        // 로딩 중: 스피너 표시
-        <ActivityIndicator 
+        <ActivityIndicator
           size='small'
           color={variant === 'primary' ? Colors.bgWhite : Colors.primary}
         />
       ) : (
-        // 기본: 텍스트 표시
         <Text className={`${variantTextClass} ${textSizeClass}`}>{title}</Text>
       )}
-    </TouchableOpacity>
+    </Pressable>
   )
 }
