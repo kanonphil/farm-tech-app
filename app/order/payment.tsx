@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Pressable, Text, TouchableOpacity, View } from 'react-native'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import { router, useLocalSearchParams } from 'expo-router'
 import useAuthStore from '@/src/store/authStore'
@@ -107,9 +107,10 @@ export default function PaymentScreen() {
          * 결제 확인 중에는 뒤로가기 차단
          * 확인 중 이탈하면 결제는 됐는데 주문이 PAID 안 되는 상황 발생 가능
          */}
-        <TouchableOpacity
+        <Pressable
           onPress={() => !isConfirming && router.back()}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={({ pressed }) => pressed && { opacity: 0.7 }}
           className="mr-3"
           disabled={isConfirming}
         >
@@ -118,7 +119,7 @@ export default function PaymentScreen() {
             size={24}
             color={isConfirming ? Colors.textMuted : Colors.textPrimary}
           />
-        </TouchableOpacity>
+        </Pressable>
         <Text className="text-base font-bold text-[#1a1a1a]">결제</Text>
       </View>
 
@@ -148,9 +149,13 @@ export default function PaymentScreen() {
           <Text className="text-center text-base text-[#999]">
             결제 정보를 불러올 수 없습니다.
           </Text>
-          <TouchableOpacity onPress={() => router.back()} className="mt-4">
+          <Pressable 
+            onPress={() => router.back()} 
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
+            className="mt-4"
+          >
             <Text className="text-sm text-primary">돌아가기</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       )}
 

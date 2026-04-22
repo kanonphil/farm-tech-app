@@ -1,5 +1,4 @@
 import { getMyInfo } from '@/src/api/authApi'
-import AuthGuard from '@/src/components/auth/AuthGuard'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import { Colors } from '@/src/constants/colors'
 import useAuthStore from '@/src/store/authStore'
@@ -7,7 +6,7 @@ import { Member } from '@/src/types'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useFocusEffect } from 'expo-router'
 import React, { useCallback, useState } from 'react'
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 
 /** 레이블 + 값 한 행 */
 function InfoRow({ label, value }: {
@@ -49,19 +48,21 @@ export default function ProfileScreen() {
     <ScreenWrapper edges={['top']}>
       {/* 헤더 */}
       <View className='flex-row items-center border-b border-[#eee] bg-white px-4 py-4'>
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={({ pressed }) => pressed && { opacity: 0.7 }}
           className='mr-3'
         >
           <Ionicons name='arrow-back' size={24} color={Colors.textPrimary} />
-        </TouchableOpacity>
+        </Pressable>
         <Text className='flex-1 text-base font-bold text-[#1a1a1a]'>내 정보</Text>
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.push('/mypage/edit-profile')}
+          style={({ pressed }) => pressed && { opacity: 0.7 }}
         >
           <Text style={{ color: Colors.primary }} className='text-sm'>수정</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {isLoading ? (

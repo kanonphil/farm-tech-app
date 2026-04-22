@@ -2,7 +2,7 @@ import { Colors } from '@/src/constants/colors'
 import { DaumAddressData } from '@/src/types'
 import { Ionicons } from '@expo/vector-icons'
 import React from 'react'
-import { View, Text, Modal, TouchableOpacity } from 'react-native'
+import { View, Text, Modal, Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import WebView, { WebViewMessageEvent } from 'react-native-webview'
 
@@ -119,12 +119,13 @@ export default function DaumPostcodeModal({
           <Text style={{ flex: 1, fontSize: 16, fontWeight: 'bold', color: '#1a1a1a' }}>
             주소 검색
           </Text>
-          <TouchableOpacity
+          <Pressable
             onPress={onClose}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
           >
             <Ionicons name="close" size={24} color={Colors.textMuted} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* ── 다음 우편번호 WebView ────────────── */}

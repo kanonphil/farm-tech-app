@@ -3,7 +3,7 @@ import { CartItem as CartItemType } from '@/src/types'
 import { formatPrice } from '@/src/utils/format'
 import { Ionicons } from '@expo/vector-icons'
 import React from 'react'
-import { View, Text, TouchableOpacity, Image } from 'react-native'
+import { View, Text, Image, Pressable } from 'react-native'
 
 /**
  * 장바구니 개별 상품 행 컴포넌트
@@ -37,9 +37,10 @@ export default function CartItem({
   return (
     <View className="flex-row items-center border-b border-[#eee] bg-white px-4 py-3">
       {/* ── 체크박스 ──────────────────────────────── */}
-      <TouchableOpacity
+      <Pressable
         onPress={() => onSelect(cartItemId)}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        style={({ pressed }) => pressed && { opacity: 0.7 }}
         className='mr-3'
       >
         <Ionicons 
@@ -47,7 +48,7 @@ export default function CartItem({
           size={24}
           color={isSelected ? Colors.primary : Colors.textMuted}
         />
-      </TouchableOpacity>
+      </Pressable>
 
       {/* ── 상품 이미지 ────────────────────────────── */}
       {/** 
@@ -71,12 +72,13 @@ export default function CartItem({
           >
             {product.productName}
           </Text>
-          <TouchableOpacity
+          <Pressable
             onPress={() => onDelete(cartItemId)}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
           >
             <Ionicons name='close' size={18} color={Colors.textMuted} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* 가격 — 단가 × 수량 */}
@@ -88,9 +90,10 @@ export default function CartItem({
         <View className='mt-2 flex-row items-center'>
 
           {/* 감소 버튼 — 수량이 1이면 비활성화 */}
-          <TouchableOpacity
+          <Pressable
             onPress={() => onQtyChange(cartItemId, cartItemQty - 1)}
             disabled={cartItemQty <= 1}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
             className='h-7 w-7 items-center justify-center rounded border border-[#ddd]'
           >
             <Ionicons 
@@ -98,7 +101,7 @@ export default function CartItem({
               size={14}
               color={cartItemQty <= 1 ? Colors.textMuted : Colors.textPrimary}
             />
-          </TouchableOpacity>
+          </Pressable>
 
           {/* 현재 수량 */}
           <Text className='mx-3 text-sm font-medium text-[#1a1a1a]'>
@@ -106,12 +109,13 @@ export default function CartItem({
           </Text>
 
           {/* 증가 버튼 */}
-          <TouchableOpacity
+          <Pressable
             onPress={() => onQtyChange(cartItemId, cartItemQty + 1)}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
             className='h-7 w-7 items-center justify-center rounded border border-[#ddd]'
           >
             <Ionicons name='add' size={14} color={Colors.textPrimary} />
-          </TouchableOpacity>
+          </Pressable>
 
         </View>
       </View>

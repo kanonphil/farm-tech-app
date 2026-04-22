@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { FlatList, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Pressable, Text, View } from 'react-native'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import AuthGuard from '@/src/components/auth/AuthGuard'
 import useAuthStore from '@/src/store/authStore'
@@ -75,13 +75,14 @@ export default function NotificationScreen() {
           className='flex-row items-center border-b border-[#eee] bg-white px-4 py-4'
           style={{ paddingVertical: 24 }}
         >
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.back()}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
             className='mr-3'
           >
             <Ionicons name='arrow-back' size={24} color={Colors.textPrimary} />
-          </TouchableOpacity>
+          </Pressable>
 
           <Text className='text-base font-bold text-[#1a1a1a]'>알림</Text>
 
@@ -131,17 +132,19 @@ function NotificationItem({ notification, onPress }: NotificationItemProps) {
   const icon = getIconInfo(notification.message)
   
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={() => onPress(notification)}
       className='mb-2 flex-row items-center rounded-xl bg-white px-4 py-4'
-      style={{
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.06,
-        shadowRadius: 4,
-        elevation: 2,
-      }}
-      activeOpacity={0.75}
+      style={({ pressed }) => [
+        pressed && { opacity: 0.75 },
+        {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.06,
+          shadowRadius: 4,
+          elevation: 2,
+        }
+      ]}
     >
       {/* 타입별 아이콘 */}
       <View
@@ -165,6 +168,6 @@ function NotificationItem({ notification, onPress }: NotificationItemProps) {
       {notification.link ? (
         <Ionicons name='chevron-forward' size={16} color='#ccc' className='ml-2' />
       ) : null}
-    </TouchableOpacity>
+    </Pressable>
   )
 }

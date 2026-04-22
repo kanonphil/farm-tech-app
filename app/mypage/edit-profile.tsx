@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import useAuthStore from '@/src/store/authStore'
 import { getMyInfo, updateMyInfo } from '@/src/api/authApi'
@@ -75,13 +75,14 @@ export default function EditProfileScreen() {
     <ScreenWrapper scroll edges={['top']}>
       {/* 헤더 */}
       <View className="flex-row items-center border-b border-[#eee] bg-white px-4 py-3">
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={({ pressed }) => pressed && { opacity: 0.7 }}
           className="mr-3"
         >
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
-        </TouchableOpacity>
+        </Pressable>
         <Text className="text-base font-bold text-[#1a1a1a]">정보 수정</Text>
       </View>
       
@@ -95,15 +96,16 @@ export default function EditProfileScreen() {
 
         {/* 주소 검색 */}
         <Text className="text-sm font-medium text-[#333] mt-2 mb-1">주소</Text>
-        <TouchableOpacity
+        <Pressable
           onPress={() => setIsPostcodeVisible(true)}
+          style={({ pressed }) => pressed && { opacity: 0.7 }}
           className="flex-row items-center justify-between rounded-lg border border-[#ddd] px-3 py-2.5 mb-2"
         >
           <Text className={memberAddr ? 'text-sm text-[#1a1a1a]' : 'text-sm text-[#bbb]'}>
             {memberAddr || '주소를 검색해주세요'}
           </Text>
           <Ionicons name="search" size={18} color={Colors.textMuted} />
-        </TouchableOpacity>
+        </Pressable>
 
         <AppInput
           label="상세 주소"
