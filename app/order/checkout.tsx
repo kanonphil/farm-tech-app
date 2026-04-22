@@ -12,7 +12,6 @@ import { DaumAddressData, Member } from '@/src/types'
 import { formatPrice } from '@/src/utils/format'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
-import React, { useCallback, useState } from 'react'
 import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native'
 import React, { useCallback, useMemo, useState } from 'react'
 
