@@ -1,4 +1,4 @@
-import { registerMember } from '@/src/api/authApi'
+import { checkEmailDuplicate, registerMember } from '@/src/api/authApi'
 import AppButton from '@/src/components/common/AppButton'
 import AppInput from '@/src/components/common/AppInput'
 import BirthDatePicker from '@/src/components/common/BirthDatePicker'
@@ -10,7 +10,7 @@ import { DaumAddressData } from '@/src/types'
 import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import React, { useState } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 export default function SignupScreen() {
   const { showToast } = useAuthStore()
@@ -41,6 +41,27 @@ export default function SignupScreen() {
   const handleChange = (field: string) => (value: string) => {
     setForm(prev => ({ ...prev, [field]: value }))
   }
+  const checkEmail = async () => {
+    if (!form.memberEmail.trim()) {
+      showToast('이메일을 입력해주세요.')
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.memberEmail)) {
+      setError(prev => ({ ...prev, memberEmail: '이메일 형식이 올바르지 않습니다' }))
+      return
+    }
+    try {
+      const isDuplicate = await checkEmailDuplicate(form.memberEmail)
+      if (isDuplicate) {
+        setError(prev => ({ ...prev, memberEmail: '이미 사용 중인 이메일입니다' }))
+      } else {
+        showToast('사용 가능한 이메일입니다.')
+        setError(prev => ({ ...prev, memberEmail: '' }))
+      }
+    } catch {
+      showToast('이메일 확인 중 오류가 발생했습니다.')
+    }
+  }
 
   const formatPhone = (value: string) => {
     const numbers = value.replace(/\D/g, '')
@@ -54,6 +75,7 @@ export default function SignupScreen() {
     let hasError = false
 
     if (!form.memberEmail.trim()) { newErrors.memberEmail = '이메일을 입력해주세요'; hasError = true }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.memberEmail)) { newErrors.memberEmail = '이메일 형식이 올바르지 않습니다'; hasError = true }
     if (!form.memberPw) { newErrors.memberPw = '비밀번호를 입력해주세요'; hasError = true }
     if (form.memberPw && form.memberPw !== confirmPw) { newErrors.confirmPw = '비밀번호가 일치하지 않습니다'; hasError = true }
     if (!form.memberName.trim()) { newErrors.memberName = '이름을 입력해주세요'; hasError = true }
@@ -94,15 +116,28 @@ export default function SignupScreen() {
       </View>
 
       {/* 입력 폼 */}
-      <AppInput
-        label='이메일'
-        value={form.memberEmail}
-        onChangeText={handleChange('memberEmail')}
-        keyboardType='email-address'
-        autoCapitalize='none'
-        placeholder='이메일을 입력해주세요'
-        error={error.memberEmail}
-      />
+      {/* 이메일 — 중복확인 버튼 포함, raw TextInput 사용 */}
+      <View style={styles.emailWrapper}>
+        <Text style={styles.inputLabel}>이메일</Text>
+        <View style={[styles.emailRow, error.memberEmail ? styles.emailRowError : styles.emailRowNormal]}>
+          <TextInput
+            style={styles.emailInput}
+            value={form.memberEmail}
+            onChangeText={handleChange('memberEmail')}
+            keyboardType='email-address'
+            autoCapitalize='none'
+            placeholder='이메일을 입력해주세요'
+            placeholderTextColor={Colors.textMuted}
+          />
+          <TouchableOpacity onPress={checkEmail} activeOpacity={0.7}>
+            <Text style={styles.checkBtn}>중복확인</Text>
+          </TouchableOpacity>
+        </View>
+        {error.memberEmail ? (
+          <Text style={styles.errorText}>{error.memberEmail}</Text>
+        ) : null}
+      </View>
+
       <AppInput
         label='비밀번호'
         value={form.memberPw}
@@ -210,7 +245,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 28,
   },
-title: {
+  title: {
     fontSize: 26,
     fontWeight: 'bold',
     color: Colors.textPrimary,
@@ -251,5 +286,44 @@ title: {
     fontSize: 13,
     fontWeight: '600',
     color: Colors.primary,
+  },
+  emailWrapper: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.textSecondary,
+    marginBottom: 4,
+  },
+  emailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+  },
+  emailRowNormal: {
+    borderColor: '#ddd',
+  },
+  emailRowError: {
+    borderColor: Colors.error,
+  },
+  emailInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: Colors.textPrimary,
+  },
+  checkBtn: {
+    color: Colors.primary,
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  errorText: {
+    marginTop: 4,
+    fontSize: 12,
+    color: Colors.error,
   },
 })

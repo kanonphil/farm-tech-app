@@ -39,7 +39,7 @@ export const registerMember = async (data: SignupRequest): Promise<void> => {
  * @returns true = 이미 사용 중, false = 사용 가능
  */
 export const checkEmailDuplicate = async (email: string): Promise<boolean> => {
-  const response = await axios.get(`${BASE_URL}/check-email`, {
+  const response = await axios.get(`${BASE_URL}/members/check-email`, {
     params: { memEmail: email },
   });
   return response.data;
