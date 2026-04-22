@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity } from 'react-native'
+import { Pressable, Text } from 'react-native'
 import React from 'react'
 import { router } from 'expo-router'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
@@ -20,13 +20,13 @@ export default function ModalScreen() {
   return (
     <ScreenWrapper>
       <Text className="mb-4 text-lg font-semibold text-[#1a1a1a]">모달</Text>
-      <TouchableOpacity
+      <Pressable
         onPress={() => router.back()}
         className="rounded-lg bg-[#e63946] px-6 py-3"
-        activeOpacity={0.75}
+        style={({ pressed }) => pressed && { opacity: 0.75 }}
       >
         <Text className="font-semibold text-white">닫기</Text>
-      </TouchableOpacity>
+      </Pressable>
     </ScreenWrapper>
   )
 }

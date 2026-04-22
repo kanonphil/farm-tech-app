@@ -1,4 +1,4 @@
-import { Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native'
+import { Pressable, Text, TextInput, TextInputProps, View } from 'react-native'
 import React, { useState } from 'react'
 import { Colors } from '@/src/constants/colors'
 import { Ionicons } from '@expo/vector-icons'
@@ -73,9 +73,9 @@ export default function AppInput({
 
         {/* 비밀번호 모드일 때만 눈 아이콘 표시 */}
         {isPassword && (
-          <TouchableOpacity
+          <Pressable
             onPress={() => setShowPassword((prev) => !prev)}
-            activeOpacity={0.7}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Ionicons 
@@ -83,7 +83,7 @@ export default function AppInput({
               size={20}
               color={Colors.textMuted}
             />
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
 

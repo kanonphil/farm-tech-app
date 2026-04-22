@@ -6,7 +6,7 @@ import useCart from '@/src/hooks/useCart'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useFocusEffect } from 'expo-router'
 import React, { useCallback, useState } from 'react'
-import { FlatList, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Pressable, Text, View } from 'react-native'
 import CartItemCard from '@/src/components/cart/CartItem'
 import CartSummary from '@/src/components/cart/CartSummary'
 
@@ -133,13 +133,14 @@ export default function CartScreen() {
         className='flex-row items-center border-b border-[#eee] bg-white px-4 py-4'
         style={{ paddingVertical: 24 }}
       >
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={({ pressed }) => pressed && { opacity: 0.7 }}
           className='mr-3'
         >
           <Ionicons name='arrow-back' size={24} color={Colors.textPrimary} />
-        </TouchableOpacity>
+        </Pressable>
 
         <Text className='text-base font-bold text-[#1a1a1a]'>장바구니</Text>
       </View>
@@ -164,8 +165,9 @@ export default function CartScreen() {
           {/* ── 상단 선택/삭제 바 ──────────────────── */}
           <View className='flex-row items-center justify-between border-b border-[#eee] bg-white px-4 py-2'>
             {/* 전체선택 체크박스 */}
-            <TouchableOpacity
+            <Pressable
               onPress={handleSelectAll}
+              style={({ pressed }) => pressed && { opacity: 0.7 }}
               className='flex-row items-center'
             >
               <Ionicons 
@@ -176,13 +178,16 @@ export default function CartScreen() {
               <Text className='ml-2 text-sm text-[#555]'>
                 전체선택 ({selectedIds.size}/{cartItems.length})
               </Text>
-            </TouchableOpacity>
+            </Pressable>
 
             {/* 선택삭제 — 선택된 항목이 있을 때만 표시 */}
             {selectedIds.size > 0 && (
-              <TouchableOpacity onPress={handleDeleteSelected}>
+              <Pressable 
+                onPress={handleDeleteSelected}
+                style={({ pressed }) => pressed && { opacity: 0.7 }}
+              >
                 <Text className="text-sm text-[#999]">선택삭제</Text>
-              </TouchableOpacity>
+              </Pressable>
             )}
           </View>
 

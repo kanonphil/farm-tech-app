@@ -13,7 +13,7 @@
  */
 
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity } from 'react-native';
+import { Modal, View, Text, Pressable } from 'react-native';
 import useAuthStore from '@/src/store/authStore';
 
 /**
@@ -63,13 +63,13 @@ const AlertModal = () => {
           </Text>
 
           {/* 확인 버튼 — Colors.primary(#e63946) 배경 */}
-          <TouchableOpacity
+          <Pressable
             className="items-center rounded-xl bg-[#e63946] py-3"
             onPress={HandleConfirm}
-            activeOpacity={0.8}
+            style={({ pressed }) => pressed && { opacity: 0.8 }}
           >
             <Text className="text-base font-bold text-white">확인</Text>
-          </TouchableOpacity>
+          </Pressable>
 
         </View>
       </View>

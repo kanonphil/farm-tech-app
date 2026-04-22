@@ -10,7 +10,7 @@ import { formatPrice } from '@/src/utils/format'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useFocusEffect } from 'expo-router'
 import React, { useCallback, useState } from 'react'
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 
 // ─────────────────────────────────────────────
 // 헬퍼
@@ -82,10 +82,10 @@ function RecentOrderRow({ order }: {
   const label = extraCount > 0 ? `${firstName} 외 ${extraCount}건` : firstName
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={() => router.push(`/mypage/order-detail?orderId=${order.orderId}`)}
       className="flex-row items-center py-3 border-b border-[#f0f0f0]"
-      activeOpacity={0.7}
+      style={({ pressed }) => pressed && { opacity: 0.7 }}
     >
       {/* 상품 아이콘 */}
       <View className="h-11 w-11 rounded-xl bg-[#f9f9f9] items-center justify-center mr-3 border border-[#eee]">
@@ -108,7 +108,7 @@ function RecentOrderRow({ order }: {
           {badge.label}
         </Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   )
 }
 
@@ -129,10 +129,10 @@ function MenuItem({
   danger?: boolean
 }) {
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
       className="flex-row items-center justify-between py-3.5 border-b border-[#f0f0f0]"
-      activeOpacity={0.7}
+      style={({ pressed }) => pressed && { opacity: 0.7 }}
     >
       <View className="flex-row items-center gap-x-3">
         <View
@@ -148,7 +148,7 @@ function MenuItem({
       {!danger && (
         <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
       )}
-    </TouchableOpacity>
+    </Pressable>
   )
 }
 
@@ -223,9 +223,12 @@ function MypageContent() {
       {/* ── 헤더 ──────────────────────────────── */}
       <View className="flex-row items-center justify-between bg-white px-4 py-3 border-b border-[#eee]">
         <Text className="text-base font-bold text-[#1a1a1a]">마이페이지</Text>
-        <TouchableOpacity onPress={() => router.push('/notification')}>
+        <Pressable 
+          onPress={() => router.push('/notification')}
+          style={({ pressed }) => pressed && { opacity: 0.7 }}
+        >
           <Ionicons name="notifications-outline" size={24} color={Colors.textPrimary} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {/* ── 프로필 카드 ───────────────────────── */}
@@ -252,9 +255,12 @@ function MypageContent() {
           </View>
 
           {/* 정보 수정 */}
-          <TouchableOpacity onPress={() => router.push('/mypage/edit-profile')}>
+          <Pressable 
+            onPress={() => router.push('/mypage/edit-profile')}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
+          >
             <Text style={{ color: Colors.primary }} className="text-xs">수정 ›</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* 통계 카드 */}
@@ -273,9 +279,12 @@ function MypageContent() {
           <Text className="text-xs font-semibold text-[#888] uppercase tracking-wider">
             최근 주문
           </Text>
-          <TouchableOpacity onPress={() => router.push('/mypage/orders')}>
+          <Pressable 
+            onPress={() => router.push('/mypage/orders')}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
+          >
             <Text className="text-xs text-[#888]">전체 보기 ›</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {recentOrders.length > 0 ? (
@@ -330,9 +339,13 @@ function MypageContent() {
       </View>
 
       {/* ── 로그아웃 ──────────────────────────── */}
-      <TouchableOpacity onPress={handleLogout} className="py-4 items-center">
+      <Pressable 
+        onPress={handleLogout} 
+        style={({ pressed }) => pressed && { opacity: 0.7 }}
+        className="py-4 items-center"
+      >
         <Text className="text-sm text-[#aaa]">로그아웃</Text>
-      </TouchableOpacity>
+      </Pressable>
 
     </ScreenWrapper>
   )

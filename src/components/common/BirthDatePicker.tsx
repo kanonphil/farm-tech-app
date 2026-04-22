@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import {
-  Modal, Platform, Text, TouchableOpacity, View,
+  Modal, Platform, Pressable, Text, View,
 } from 'react-native'
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker'
 import { Ionicons } from '@expo/vector-icons'
@@ -65,37 +65,43 @@ export default function BirthDatePicker({
       {/* 선택된 날짜 표시 버튼 */}
       <View className="mb-2">
         <Text className="text-sm font-medium text-[#333] mb-1">{label}</Text>
-        <TouchableOpacity
+        <Pressable
           onPress={handleOpen}
+          style={({ pressed }) => pressed && { opacity: 0.7 }}
           className="flex-row items-center justify-between rounded-lg border border-[#ddd] px-3 py-2.5"
         >
           <Text className={value ? 'text-sm text-[#1a1a1a]' : 'text-sm text-[#bbb]'}>
             {value || '생년월일을 선택해주세요'}
           </Text>
           <Ionicons name="calendar-outline" size={18} color={Colors.textMuted} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {/* iOS: 모달로 드럼롤 표시 */}
       {Platform.OS === 'ios' && (
         <Modal visible={visible} transparent animationType="slide">
-          <TouchableOpacity
+          <Pressable
             className="flex-1 bg-black/40"
-            activeOpacity={1}
             onPress={() => setVisible(false)}
           />
           <View className="bg-white rounded-t-2xl px-4 pb-8">
             {/* 모달 헤더 */}
             <View className="flex-row items-center justify-between py-4">
-              <TouchableOpacity onPress={() => setVisible(false)}>
+              <Pressable 
+                onPress={() => setVisible(false)}
+                style={({ pressed }) => pressed && { opacity: 0.7 }}
+              >
                 <Text className="text-sm text-[#888]">취소</Text>
-              </TouchableOpacity>
+              </Pressable>
               <Text className="text-base font-semibold text-[#1a1a1a]">생년월일</Text>
-              <TouchableOpacity onPress={handleConfirm}>
+              <Pressable 
+                onPress={handleConfirm}
+                style={({ pressed }) => pressed && { opacity: 0.7 }}
+              >
                 <Text className="text-sm font-semibold" style={{ color: Colors.primary }}>
                   확인
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
             {/* 드럼롤 Picker */}
             <DateTimePicker

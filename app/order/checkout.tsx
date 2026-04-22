@@ -12,8 +12,9 @@ import { DaumAddressData, Member } from '@/src/types'
 import { formatPrice } from '@/src/utils/format'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import React, { useCallback, useState } from 'react'
+import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native'
 import React, { useCallback, useMemo, useState } from 'react'
-import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 /**
  * 주문/결제 화면
@@ -155,9 +156,13 @@ export default function CheckoutScreen() {
       <ScreenWrapper edges={['top']}>
         <View className="flex-1 items-center justify-center px-6">
           <Text className="text-center text-base text-[#999]">{error}</Text>
-          <TouchableOpacity onPress={loadItems} className="mt-4">
+          <Pressable 
+            onPress={loadItems} 
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
+            className="mt-4"
+          >
             <Text className="text-sm text-primary">다시 시도</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </ScreenWrapper>
     )
@@ -173,13 +178,14 @@ export default function CheckoutScreen() {
 
         {/* ── 헤더 ────────────────────────────────── */}
         <View className="flex-row items-center border-b border-[#eee] bg-white px-4 py-3">
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.back()}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
             className="mr-3"
           >
             <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
-          </TouchableOpacity>
+          </Pressable>
           <Text className="text-base font-bold text-[#1a1a1a]">주문/결제</Text>
         </View>
 
@@ -196,10 +202,10 @@ export default function CheckoutScreen() {
         <View className="bg-white px-4 py-3 gap-y-3">
 
           {/* 내 정보 불러오기 체크박스 */}
-          <TouchableOpacity
+          <Pressable
             onPress={() => handleUseMyAddress(!useMyAddress)}
             className='flex-row items-center gap-x-2'
-            activeOpacity={0.7}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
           >
             <Ionicons 
               name={useMyAddress ? 'checkbox' : 'checkbox-outline'}
@@ -210,7 +216,7 @@ export default function CheckoutScreen() {
             {isFetchingInfo && (
               <ActivityIndicator size='small' color={Colors.primary} />
             )}
-          </TouchableOpacity>
+          </Pressable>
 
           {useMyAddress && memberInfo ? (
             // 회원 주소 읽기 전용 표시
@@ -221,15 +227,16 @@ export default function CheckoutScreen() {
           ) : (
             <>
               {/* 주소 검색 버튼 */}
-              <TouchableOpacity
+              <Pressable
                 onPress={() => setIsPostcodeVisible(true)}
+                style={({ pressed }) => pressed && { opacity: 0.7 }}
                 className="flex-row items-center justify-between rounded-lg border border-[#ddd] px-3 py-2.5"
               >
                 <Text className={selectedAddress ? 'text-sm text-[#1a1a1a]' : 'text-sm text-[#bbb]'}>
                   {selectedAddress ? `[${selectedAddress.zonecode}] ${selectedAddress.roadAddress}` : '주소를 검색해주세요'}
                 </Text>
                 <Ionicons name="search" size={18} color={Colors.textMuted} />
-              </TouchableOpacity>
+              </Pressable>
 
               {/* 건물명 — 있을 때만 표시 */}
               {selectedAddress?.buildingName ? (
