@@ -14,8 +14,31 @@ import { UserNotification } from "@/src/types";
 import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 
-// SecureStore에서 토큰을 저장할 때 사용하는 키 이름
+// ── SecureStore 키 ────────────────────────────────────
 const TOKEN_KEY = "access_token";
+const REFRESH_TOKEN_KEY = "refresh_token";   // ← 추가
+
+/**
+ * JWT 토큰의 payload를 base64 디코딩해 role 클레임을 추출
+ * jwt-decode 패키지 없이 Expo 내장 atob()를 사용
+ * 
+ * @param token - 액세스 토큰 (Bearer 제거된 순수 토큰 문자열)
+ * @returns role 클레임 값 (예: "MANAGER", "USER") - 실패 시 null
+ */
+function decodeRole(token: string): string | null {
+  try {
+    // JWT는 header.payload.signature 세 부분으로 구성
+    const base64Payload = token.split('.')[1]
+    // URL-safe base64 -> 표준 base64 변환 후 디코딩
+    const base64 = base64Payload.replace(/-/g, '+').replace(/_/g, '/')
+    const decoded = JSON.parse(atob(base64))
+    const role: string | undefined = decoded.role;
+    if (!role) return null;
+    return role.startsWith('ROLE_') ? role.slice(5) : role;
+  } catch (error) {
+    return null
+  }
+}
 
 // ─────────────────────────────────────────────
 // 타입 정의
@@ -39,17 +62,20 @@ interface Toast {
 interface AuthStore {
   // ── 상태(State) ──────────────────────────────
   /** 액세스 토큰 (메모리에만 보관, 앱 재시작 시 SecureStore에서 복원) */
-  token: string | null;
+  token: string | null
+  refreshToken: string | null;
+  /** JWT에서 디코딩한 사용자 역할 (예: "MANAGER", "USER") */
+  role: string | null
   /** 앱 시작 시 토큰 복원 완료 여부 — false이면 스플래시 유지 */
-  isAuthReady: boolean;
+  isAuthReady: boolean
   /** 읽지 않은 알림 목록 */
-  notifications: UserNotification[];
+  notifications: UserNotification[]
   /** 장바구니 상품 개수 (탭 뱃지에 표시) */
-  cartCount: number;
+  cartCount: number
   /** 알림 모달 상태 */
-  alertModal: AlertModal;
+  alertModal: AlertModal
   /** 토스트 메시지 상태 */
-  toast: Toast;
+  toast: Toast
 
   // ── 액션(Action) ─────────────────────────────
   /**
@@ -58,6 +84,8 @@ interface AuthStore {
    * 앱을 완전히 종료했다 켜도 로그인 상태가 유지됩니다.
    */
   setToken: (token: string) => Promise<void>;
+
+  setRefreshToken: (token: string) => Promise<void>;
 
   /**
    * 로그아웃 시 토큰 삭제
@@ -98,6 +126,8 @@ interface AuthStore {
 const useAuthStore = create<AuthStore>((set) => ({
   // ── 초기 상태 ────────────────────────────────
   token: null,
+  role: null,
+  refreshToken: null,
   isAuthReady: false,
   notifications: [],
   cartCount: 0,
@@ -109,23 +139,36 @@ const useAuthStore = create<AuthStore>((set) => ({
   setToken: async (token: string) => {
     // 1) SecureStore에 영구 저장 (앱 종료 후에도 유지)
     await SecureStore.setItemAsync(TOKEN_KEY, token);
-    // 2) Zustand 메모리에도 저장 (컴포넌트에서 즉시 사용)
-    set({ token });
+    // 2) Zustand 메모리에도 저장 + JWT에서 role 디코딩 (컴포넌트에서 즉시 사용)
+    set({ token, role: decodeRole(token) });
+  },
+
+  // ── setRefreshToken (추가) ─────────────────
+  setRefreshToken: async (token: string) => {
+    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
+    set({ refreshToken: token });
   },
 
   clearToken: async () => {
     // 1) SecureStore에서 삭제
     await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY)
     // 2) Zustand 메모리에서도 초기화
-    set({ token: null, cartCount: 0, notifications: [] });
+    set({ token: null, refreshToken: null, cartCount: 0, notifications: [] });
   },
 
   restoreToken: async () => {
     try {
       // 앱 시작 시 SecureStore에서 토큰 꺼내기
       const savedToken = await SecureStore.getItemAsync(TOKEN_KEY);
+      const savedRefreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
       if (savedToken) {
-        set({ token: savedToken });
+        // 토큰 복원 시 role도 함께 복원
+        set({ 
+          token: savedToken, 
+          refreshToken: savedRefreshToken ?? null,
+          role: decodeRole(savedToken) 
+        });
       }
     } catch (e) {
       // SecureStore 읽기 실패 시 그냥 비로그인 상태로 진행

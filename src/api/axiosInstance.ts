@@ -85,16 +85,23 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
+        // SecureStore에서 복원한 refreshToken을 헤더로 전송
+        const { refreshToken } = useAuthStore.getState();
+        
         // Refresh Token으로 새 Access Token 발급 요청
-        const response = await axiosInstance.post('/members/refresh');
-        const newToken = response.headers['authorization'];
+        const response = await axiosInstance.post('/members/refresh', null, {
+          headers: refreshToken ? { 'Refresh=Token': refreshToken } : {},
+        });
+
+        const newToken = response.headers['authorization']?.replace('Bearer ', '')
+        if (!newToken) throw new Error("새 토큰 없음");
 
         // 새 토큰을 store와 SecureStore에 저장
         await useAuthStore.getState().setToken(newToken);
 
         // 실패했던 원래 요청의 헤더를 새 토큰으로 교체 후 재시도
         if (originalRequest?.headers) {
-          originalRequest.headers['Authorization'] = newToken;
+          originalRequest.headers['Authorization'] = `Bearer ${newToken}`
         }
         return axiosInstance(originalRequest!);
 

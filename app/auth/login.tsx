@@ -9,7 +9,6 @@ import { Text, TouchableOpacity, View } from 'react-native';
 
 /**
  * 로그인 페이지
- * TODO: UI 및 로직 구현 필요
  */
 export default function LoginScreen() {
   //이메일 , 비밀번호 입력값 상태
@@ -18,8 +17,8 @@ export default function LoginScreen() {
 
   //로딩 상태 (버튼 중복 클릭 방지)
   const [loading, setLoading] = useState(false);
-  //전역 스토어에서 토ㅓ큰 저장 함수, 토스트 메세지 함수 가져오기
-  const {setToken,showToast} = useAuthStore()
+  //전역 스토어에서 토큰 저장 함수, 토스트 메세지 함수 가져오기
+  const {setToken, setRefreshToken, showToast} = useAuthStore()
 
   const handleLogin = async () => {
     // 입력값 비어있으면 토스트 메시지 표시
@@ -33,11 +32,16 @@ export default function LoginScreen() {
       const response = await login({memberEmail:email, memberPw: password})
       // 응답 헤더에서 토큰 꺼내기 (Bearer 제거)
       const token = response.headers['authorization']?.replace('Bearer ', '');
+      const refreshToken = response.headers['refresh-token']
 
       if(token){
-        //토큰 저장 후 홈으로 이동
+        // setToken 내부에서 JWT를 디코딩해 role도 함께 저장
         await setToken(token)
-        router.replace('/(tabs)/home')
+        if (refreshToken) await setRefreshToken(refreshToken)
+
+        // 저장 직후 스토어에서 role을 꺼내 이동할 탭을 결정
+        const { role } = useAuthStore.getState()
+        router.replace(role === 'MANAGER' ? '/(tabs)/dashboard' : '/(tabs)/home')
       }else{
         showToast('로그인에 실패했습니다.')
       }
