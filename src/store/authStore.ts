@@ -63,7 +63,10 @@ interface AuthStore {
   // ── 상태(State) ──────────────────────────────
   /** 액세스 토큰 (메모리에만 보관, 앱 재시작 시 SecureStore에서 복원) */
   token: string | null;
-  refreshToken: string | null; // 자동로그인 30일 rolling을 위한 refresh token
+  /** JWT에서 디코딩한 사용자 역할 (예: 'MANAGER', 'USER') */
+  role: string | null;
+  /** 자동로그인 30일 rolling을 위한 refresh token */
+  refreshToken: string | null;
   /** 앱 시작 시 토큰 복원 완료 여부 — false이면 스플래시 유지 */
   isAuthReady: boolean
   /** 읽지 않은 알림 목록 */
