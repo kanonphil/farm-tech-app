@@ -20,7 +20,7 @@ const MypageLayout = () => {
     <Stack
       screenOptions={{
         // 헤더 표시 (마이페이지 하위 화면에서는 뒤로가기가 필요)
-        headerShown: true,
+        headerShown: false,
 
         // 뒤로가기 버튼 색상 — 브랜드 레드
         headerTintColor: '#e63946',
