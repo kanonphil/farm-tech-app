@@ -57,7 +57,11 @@ export const checkEmailDuplicate = async (email: string): Promise<boolean> => {
  * @param data 로그인 폼 데이터
  */
 export const login = async (data: LoginRequest) => {
-  const response = await axiosInstance.post('/members/login', data);
+  const response = await axiosInstance.post('/members/login', {
+    ...data,
+    autoLogin:true //앱은 항상 자동로그인
+  });
+  // refresh token은 호출부(login.tsx)에서 response.headers['refresh-token']으로 꺼냄
   return response;
 };
 

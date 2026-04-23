@@ -23,6 +23,7 @@ export interface ApiResponse<T> {
 export interface LoginRequest {
   memberEmail: string;
   memberPw: string;
+  autoLogin? : boolean;
 }
 
 /**
