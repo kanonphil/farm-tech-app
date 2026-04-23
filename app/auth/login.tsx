@@ -29,14 +29,15 @@ export default function LoginScreen() {
     try{
       setLoading(true)
       
-      //서버에 로그인 요청
-      const response = await login({memberEmail:email, memberPw: password})
-      // 응답 헤더에서 토큰 꺼내기 (Bearer 제거)
+      // 서버에 로그인 요청 (앱은 항상 autoLogin: true → 30일 refresh token 발급)
+      const response = await login({memberEmail:email, memberPw: password, autoLogin:true})
+      // 응답 헤더에서 access token, refresh token 꺼내기
       const token = response.headers['authorization']?.replace('Bearer ', '');
+      const refreshToken = response.headers['refresh-token'];
 
       if(token){
-        //토큰 저장 후 홈으로 이동
-        await setToken(token)
+        // 두 토큰 모두 SecureStore에 저장 후 홈으로 이동
+        await setToken(token, refreshToken);
         router.replace('/(tabs)/home')
       }else{
         showToast('로그인에 실패했습니다.')
@@ -79,15 +80,16 @@ export default function LoginScreen() {
         isPassword
       />
 
-      <AppButton 
-        title='로그인'
-        style={{width:'100%', marginBottom:16}}
-        onPress={handleLogin}
-        loading={loading}
-      />
+      <View style={{width:'100%', marginBottom:16}}>
+        <AppButton
+          title='로그인'
+          onPress={handleLogin}
+          loading={loading}
+        />
+      </View>
 
       {/* 회원가입 안내 */}
-           <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
         <Text style={{ fontSize: 14, color: '#999' }}>아직 계정이 없으신가요?</Text>
         <TouchableOpacity onPress={() => router.push('/auth/signup')} style={{ marginLeft: 4 }}>
           <Text style={{ fontSize: 14, fontWeight: '600', color: '#e63946' }}>회원가입</Text>

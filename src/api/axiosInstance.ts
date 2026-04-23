@@ -23,6 +23,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { router } from 'expo-router';
 import useAuthStore from '@/src/store/authStore';
 import { BASE_URL } from '../constants';
+import * as SecureStore from 'expo-secure-store';
 
 // ─────────────────────────────────────────────
 // Axios 인스턴스 생성
@@ -85,12 +86,16 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Refresh Token으로 새 Access Token 발급 요청
-        const response = await axiosInstance.post('/members/refresh');
-        const newToken = response.headers['authorization'];
-
-        // 새 토큰을 store와 SecureStore에 저장
-        await useAuthStore.getState().setToken(newToken);
+        
+        // SecureStore에서 refresh token 꺼내서 헤더로 전송 (앱은 쿠키 대신 헤더 사용)
+        const refreshToken = await SecureStore.getItemAsync('refresh_token');
+        const response = await axiosInstance.post('/members/refresh', null, {
+          headers: { 'Refresh-Token': refreshToken }
+        });
+        // 새 access token, refresh token 둘 다 저장 (30일 rolling 연장)
+        const newToken = response.headers['authorization']?.replace('Bearer ', '');
+        const newRefreshToken = response.headers['refresh-token'];
+        await useAuthStore.getState().setToken(newToken, newRefreshToken);
 
         // 실패했던 원래 요청의 헤더를 새 토큰으로 교체 후 재시도
         if (originalRequest?.headers) {

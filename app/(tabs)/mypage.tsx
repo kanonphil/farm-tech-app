@@ -367,17 +367,19 @@ export default function MypageScreen() {
           <Text className="text-sm text-[#999] text-center">
             로그인하고 주문내역, 리뷰 등{'\n'}다양한 서비스를 이용해보세요
           </Text>
-          <AppButton
-            title="로그인"
-            onPress={() => router.push('/auth/login')}
-            style={{ width: '100%', marginTop: 8 }}
-          />
-          <AppButton
-            title="회원가입"
-            variant="outline"
-            onPress={() => router.push('/auth/signup')}
-            style={{ width: '100%' }}
-          />
+          <View style={{ width: '100%', marginTop: 8 }}>
+            <AppButton
+              title="로그인"
+              onPress={() => router.push('/auth/login')}
+            />
+          </View>
+          <View style={{ width: '100%' }}>
+            <AppButton
+              title="회원가입"
+              variant="outline"
+              onPress={() => router.push('/auth/signup')}
+            />
+          </View>
         </View>
       </ScreenWrapper>
     )
