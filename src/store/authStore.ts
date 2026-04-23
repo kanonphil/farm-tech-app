@@ -14,9 +14,32 @@ import { UserNotification } from "@/src/types";
 import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 
-// SecureStore에서 토큰을 저장할 때 사용하는 키 이름
+// ── SecureStore 키 ────────────────────────────────────
 const TOKEN_KEY = "access_token";
-const REFRESH_TOKEN_KEY = "refresh_token"; // 자동로그인용 refresh token 키
+const REFRESH_TOKEN_KEY = "refresh_token";   // ← 추가
+
+/**
+ * JWT 토큰의 payload를 base64 디코딩해 role 클레임을 추출
+ * jwt-decode 패키지 없이 Expo 내장 atob()를 사용
+ * 
+ * @param token - 액세스 토큰 (Bearer 제거된 순수 토큰 문자열)
+ * @returns role 클레임 값 (예: "MANAGER", "USER") - 실패 시 null
+ */
+function decodeRole(token: string): string | null {
+  try {
+    // JWT는 header.payload.signature 세 부분으로 구성
+    const base64Payload = token.split('.')[1]
+    // URL-safe base64 -> 표준 base64 변환 후 디코딩
+    const base64 = base64Payload.replace(/-/g, '+').replace(/_/g, '/')
+    const decoded = JSON.parse(atob(base64))
+    const role: string | undefined = decoded.role;
+    if (!role) return null;
+    return role.startsWith('ROLE_') ? role.slice(5) : role;
+  } catch (error) {
+    return null
+  }
+}
+
 // ─────────────────────────────────────────────
 // 타입 정의
 // ─────────────────────────────────────────────
@@ -42,15 +65,15 @@ interface AuthStore {
   token: string | null;
   refreshToken: string | null; // 자동로그인 30일 rolling을 위한 refresh token
   /** 앱 시작 시 토큰 복원 완료 여부 — false이면 스플래시 유지 */
-  isAuthReady: boolean;
+  isAuthReady: boolean
   /** 읽지 않은 알림 목록 */
-  notifications: UserNotification[];
+  notifications: UserNotification[]
   /** 장바구니 상품 개수 (탭 뱃지에 표시) */
-  cartCount: number;
+  cartCount: number
   /** 알림 모달 상태 */
-  alertModal: AlertModal;
+  alertModal: AlertModal
   /** 토스트 메시지 상태 */
-  toast: Toast;
+  toast: Toast
 
   // ── 액션(Action) ─────────────────────────────
   /**
@@ -59,6 +82,8 @@ interface AuthStore {
    * 앱을 완전히 종료했다 켜도 로그인 상태가 유지됩니다.
    */
   setToken: (token: string, refreshToken?: string) => Promise<void>;
+
+  setRefreshToken: (token: string) => Promise<void>;
 
   /**
    * 로그아웃 시 토큰 삭제
@@ -99,12 +124,13 @@ interface AuthStore {
 const useAuthStore = create<AuthStore>((set) => ({
   // ── 초기 상태 ────────────────────────────────
   token: null,
+  role: null,
+  refreshToken: null,
   isAuthReady: false,
   notifications: [],
   cartCount: 0,
   alertModal: { show: false, message: "", callback: null },
   toast: { show: false, message: "" },
-  refreshToken: null,
 
   // ── 토큰 액션 ────────────────────────────────
 
@@ -112,14 +138,21 @@ const useAuthStore = create<AuthStore>((set) => ({
     await SecureStore.setItemAsync(TOKEN_KEY, token);
     // refresh token이 있을 때만 저장 (갱신 시 새 토큰으로 덮어씀)
     if (refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
-    set({ token });
+    // 2) Zustand 메모리에도 저장 + JWT에서 role 디코딩 (컴포넌트에서 즉시 사용)
+    set({ token, role: decodeRole(token) });
+  },
+
+  // ── setRefreshToken (추가) ─────────────────
+  setRefreshToken: async (token: string) => {
+    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
+    set({ refreshToken: token });
   },
 
   clearToken: async () => {
-    // access token, refresh token 둘 다 삭제
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
-    set({ token: null, refreshToken: null, cartCount: 0, notifications: [] });
+    // role도 함께 초기화 (로그아웃 후 잔재 방지)
+    set({ token: null, role: null, refreshToken: null, cartCount: 0, notifications: [] });
   },
 
   restoreToken: async () => {
@@ -127,8 +160,14 @@ const useAuthStore = create<AuthStore>((set) => ({
       // 앱 재시작 시 SecureStore에서 두 토큰 모두 복원
       const savedToken = await SecureStore.getItemAsync(TOKEN_KEY);
       const savedRefreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
-      if (savedToken) set({ token: savedToken });
-      if (savedRefreshToken) set({ refreshToken: savedRefreshToken });
+      if (savedToken) {
+        // 토큰 복원 시 role도 함께 복원
+        set({ 
+          token: savedToken, 
+          refreshToken: savedRefreshToken ?? null,
+          role: decodeRole(savedToken) 
+        });
+      }
     } catch (e) {
       console.warn("[AuthStore] 토큰 복원 실패:", e);
     } finally {
