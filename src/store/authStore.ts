@@ -16,7 +16,7 @@ import { create } from "zustand";
 
 // SecureStore에서 토큰을 저장할 때 사용하는 키 이름
 const TOKEN_KEY = "access_token";
-
+const REFRESH_TOKEN_KEY = "refresh_token"; // 자동로그인용 refresh token 키
 // ─────────────────────────────────────────────
 // 타입 정의
 // ─────────────────────────────────────────────
@@ -40,6 +40,7 @@ interface AuthStore {
   // ── 상태(State) ──────────────────────────────
   /** 액세스 토큰 (메모리에만 보관, 앱 재시작 시 SecureStore에서 복원) */
   token: string | null;
+  refreshToken: string | null; // 자동로그인 30일 rolling을 위한 refresh token
   /** 앱 시작 시 토큰 복원 완료 여부 — false이면 스플래시 유지 */
   isAuthReady: boolean;
   /** 읽지 않은 알림 목록 */
@@ -57,7 +58,7 @@ interface AuthStore {
    * 메모리(Zustand)와 SecureStore 양쪽에 저장해
    * 앱을 완전히 종료했다 켜도 로그인 상태가 유지됩니다.
    */
-  setToken: (token: string) => Promise<void>;
+  setToken: (token: string, refreshToken?: string) => Promise<void>;
 
   /**
    * 로그아웃 시 토큰 삭제
@@ -103,35 +104,34 @@ const useAuthStore = create<AuthStore>((set) => ({
   cartCount: 0,
   alertModal: { show: false, message: "", callback: null },
   toast: { show: false, message: "" },
+  refreshToken: null,
 
   // ── 토큰 액션 ────────────────────────────────
 
-  setToken: async (token: string) => {
-    // 1) SecureStore에 영구 저장 (앱 종료 후에도 유지)
+  setToken: async (token: string, refreshToken?: string) => {
     await SecureStore.setItemAsync(TOKEN_KEY, token);
-    // 2) Zustand 메모리에도 저장 (컴포넌트에서 즉시 사용)
+    // refresh token이 있을 때만 저장 (갱신 시 새 토큰으로 덮어씀)
+    if (refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
     set({ token });
   },
 
   clearToken: async () => {
-    // 1) SecureStore에서 삭제
+    // access token, refresh token 둘 다 삭제
     await SecureStore.deleteItemAsync(TOKEN_KEY);
-    // 2) Zustand 메모리에서도 초기화
-    set({ token: null, cartCount: 0, notifications: [] });
+    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+    set({ token: null, refreshToken: null, cartCount: 0, notifications: [] });
   },
 
   restoreToken: async () => {
     try {
-      // 앱 시작 시 SecureStore에서 토큰 꺼내기
+      // 앱 재시작 시 SecureStore에서 두 토큰 모두 복원
       const savedToken = await SecureStore.getItemAsync(TOKEN_KEY);
-      if (savedToken) {
-        set({ token: savedToken });
-      }
+      const savedRefreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+      if (savedToken) set({ token: savedToken });
+      if (savedRefreshToken) set({ refreshToken: savedRefreshToken });
     } catch (e) {
-      // SecureStore 읽기 실패 시 그냥 비로그인 상태로 진행
       console.warn("[AuthStore] 토큰 복원 실패:", e);
     } finally {
-      // 성공/실패 상관없이 복원 완료 표시
       set({ isAuthReady: true });
     }
   },
