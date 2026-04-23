@@ -62,10 +62,8 @@ interface Toast {
 interface AuthStore {
   // ── 상태(State) ──────────────────────────────
   /** 액세스 토큰 (메모리에만 보관, 앱 재시작 시 SecureStore에서 복원) */
-  token: string | null
-  refreshToken: string | null;
-  /** JWT에서 디코딩한 사용자 역할 (예: "MANAGER", "USER") */
-  role: string | null
+  token: string | null;
+  refreshToken: string | null; // 자동로그인 30일 rolling을 위한 refresh token
   /** 앱 시작 시 토큰 복원 완료 여부 — false이면 스플래시 유지 */
   isAuthReady: boolean
   /** 읽지 않은 알림 목록 */
@@ -83,7 +81,7 @@ interface AuthStore {
    * 메모리(Zustand)와 SecureStore 양쪽에 저장해
    * 앱을 완전히 종료했다 켜도 로그인 상태가 유지됩니다.
    */
-  setToken: (token: string) => Promise<void>;
+  setToken: (token: string, refreshToken?: string) => Promise<void>;
 
   setRefreshToken: (token: string) => Promise<void>;
 
@@ -136,9 +134,10 @@ const useAuthStore = create<AuthStore>((set) => ({
 
   // ── 토큰 액션 ────────────────────────────────
 
-  setToken: async (token: string) => {
-    // 1) SecureStore에 영구 저장 (앱 종료 후에도 유지)
+  setToken: async (token: string, refreshToken?: string) => {
     await SecureStore.setItemAsync(TOKEN_KEY, token);
+    // refresh token이 있을 때만 저장 (갱신 시 새 토큰으로 덮어씀)
+    if (refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
     // 2) Zustand 메모리에도 저장 + JWT에서 role 디코딩 (컴포넌트에서 즉시 사용)
     set({ token, role: decodeRole(token) });
   },
@@ -150,16 +149,15 @@ const useAuthStore = create<AuthStore>((set) => ({
   },
 
   clearToken: async () => {
-    // 1) SecureStore에서 삭제
     await SecureStore.deleteItemAsync(TOKEN_KEY);
-    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY)
-    // 2) Zustand 메모리에서도 초기화
-    set({ token: null, refreshToken: null, cartCount: 0, notifications: [] });
+    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+    // role도 함께 초기화 (로그아웃 후 잔재 방지)
+    set({ token: null, role: null, refreshToken: null, cartCount: 0, notifications: [] });
   },
 
   restoreToken: async () => {
     try {
-      // 앱 시작 시 SecureStore에서 토큰 꺼내기
+      // 앱 재시작 시 SecureStore에서 두 토큰 모두 복원
       const savedToken = await SecureStore.getItemAsync(TOKEN_KEY);
       const savedRefreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
       if (savedToken) {
@@ -171,10 +169,8 @@ const useAuthStore = create<AuthStore>((set) => ({
         });
       }
     } catch (e) {
-      // SecureStore 읽기 실패 시 그냥 비로그인 상태로 진행
       console.warn("[AuthStore] 토큰 복원 실패:", e);
     } finally {
-      // 성공/실패 상관없이 복원 완료 표시
       set({ isAuthReady: true });
     }
   },
