@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import { router, useFocusEffect } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
@@ -166,8 +166,8 @@ export default function DashboardScreen() {
   )
 
   // 토큰 복원 중 / 비로그인 / 권한X -> 스피너 표시
+  // 인증 체크만 전체 스피너 유지
   if (!isReady || !isLoggedIn || role !== 'MANAGER') return <LoadingSpinner full />
-  if (loading) return <LoadingSpinner full />
   
   return (
     <ScreenWrapper scroll>
@@ -177,12 +177,16 @@ export default function DashboardScreen() {
       
       {/* ── 헤더 ────────────────────────────────── */}
       <View className='px-5 pt-5 pb-4'>
-        <Text className='text-2xl font-bold text-gray-900'>대시보드</Text>
-        <Text className='text-sm text-gray-400 mt-1'>
-          {banner === null    ? '실시간 센서 현황' :
-          banner === 'device' ? 'DB 마지막 저장값 표시 중' :
-                                '데이터를 불러올 수 없습니다'}
-        </Text>
+        <View>
+          <Text className='text-2xl font-bold text-gray-900'>대시보드</Text>
+          <Text className='text-sm text-gray-400 mt-1'>
+            {banner === null    ? '실시간 센서 현황' :
+            banner === 'device' ? 'DB 마지막 저장값 표시 중' :
+                                  '데이터를 불러올 수 없습니다'}
+          </Text>
+        </View>
+        {/* 데이터 갱신 중일 때만 작은 스피너 */}
+        {/* {loading && <ActivityIndicator size='small' color='#9ca3af' />} */}
       </View>
 
       {/* ── 센서 카드 그리드 ─────────────────────── */}

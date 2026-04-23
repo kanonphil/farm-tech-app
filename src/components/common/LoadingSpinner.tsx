@@ -34,7 +34,7 @@ export default function LoadingSpinner({
 }: LoadingSpinnerProps) {
   if (full) {
     return (
-      <View className='flex-1 items-center justifyi-center bg-[#f9f9f9]'>
+      <View className='flex-1 items-center justify-center bg-[#f9f9f9]'>
         <ActivityIndicator size={size} color={color} />
       </View>
     )
