@@ -30,6 +30,7 @@ import { StatusBar } from 'expo-status-bar'
 // global.css는 NativeWind가 Tailwind 유틸리티를 활성화하기 위해 반드시 필요합니다
 import '../global.css'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useFcmToken } from '@/src/hooks/useFcmToken';
 
 // ─────────────────────────────────────────────
 // 스플래시 화면 자동 숨김 방지
@@ -51,6 +52,9 @@ const RootLayout = () => {
   const restoreToken = useAuthStore((state) => state.restoreToken);
   const setNotifications = useAuthStore((state) => state.setNotifications);
   const addNotification = useAuthStore((state) => state.addNotification);
+
+  // 내부에 useEffect 있음.
+  useFcmToken();
 
   // AppState 이전 값을 추적하기 위한 ref
   // (background → active 전환만 감지하고 싶기 때문)
