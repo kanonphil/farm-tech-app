@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
   ActivityIndicator,
   Image,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -99,6 +100,16 @@ const ProductReviewTab = ({ productId }: Props) => {
   const [reviews, setReviews] = useState<Review[]>([])
   const [stats, setStats] = useState<ReviewStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [sort, setSort] = useState<'latest' | 'high' | 'low'>('latest')
+
+  // 정렬된 리뷰 목록
+  const sortedReviews = useMemo(() => {
+    const copy = [...reviews]
+    if (sort === 'latest') return copy.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    if (sort === 'high')   return copy.sort((a, b) => b.rating - a.rating)
+    if (sort === 'low')    return copy.sort((a, b) => a.rating - b.rating)
+    return copy
+  }, [reviews, sort])
 
   // ─────────────────────────────────────────────
   // 리뷰 + 통계 동시 조회
@@ -111,9 +122,20 @@ const ProductReviewTab = ({ productId }: Props) => {
           getProductReviews(productId),
           getReviewStats(productId),
         ])
-        // 배열 여부 체크 후 저장 (서버 응답 형태가 다를 경우 대비)
-        setReviews(Array.isArray(reviewData) ? reviewData : [])
-        setStats(statsData ?? null)
+
+        const safeReviews = Array.isArray(reviewData) ? reviewData : []
+
+        // ratingDistribution 프론트에서 직접 계산
+        const distribution: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+        safeReviews.forEach((r) => {
+          const rounded = Math.round(r.rating)
+          if (rounded >= 1 && rounded <= 5) {
+            distribution[rounded] = (distribution[rounded] ?? 0) + 1
+          }
+        })
+
+        setReviews(safeReviews)
+        setStats(statsData ? { ...statsData, ratingDistribution: distribution } : null)
       } catch (e) {
         console.warn('[ProductReviewTab] 리뷰 조회 실패:', e)
         setReviews([])
@@ -165,16 +187,34 @@ const ProductReviewTab = ({ productId }: Props) => {
       )}
 
       <View style={styles.divider} />
+      {/* ── 정렬 버튼 ─────────────────────────── */}
+      <View style={styles.sortRow}>
+        {([
+          { label: '최신순', value: 'latest' },
+          { label: '별점 높은순', value: 'high' },
+          { label: '별점 낮은순', value: 'low' },
+        ] as const).map((option) => (
+          <Pressable
+            key={option.value}
+            onPress={() => setSort(option.value)}
+            style={[styles.sortBtn, sort === option.value && styles.sortBtnActive]}
+          >
+            <Text style={[styles.sortBtnText, sort === option.value && styles.sortBtnTextActive]}>
+              {option.label}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
 
       {/* ── 리뷰 목록 ─────────────────────────── */}
-      {reviews.length === 0 ? (
+      {sortedReviews.length === 0 ? (
         <View style={styles.centerBox}>
           <Ionicons name="chatbubble-outline" size={40} color="#ddd" />
           <Text style={styles.emptyText}>아직 리뷰가 없습니다</Text>
           <Text style={styles.emptySubText}>첫 번째 리뷰를 작성해보세요</Text>
         </View>
       ) : (
-        reviews.map((review) => (
+        sortedReviews.map((review) => (
           <ReviewCard key={review.reviewId} review={review} />
         ))
       )}
@@ -320,5 +360,31 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 8,
     backgroundColor: '#f5f5f5',
+  },
+    sortRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  sortBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#eee',
+    backgroundColor: '#fff',
+  },
+  sortBtnActive: {
+    borderColor: Colors.primary,
+    backgroundColor: '#fef2f2',
+  },
+  sortBtnText: {
+    fontSize: 12,
+    color: '#888',
+  },
+  sortBtnTextActive: {
+    color: Colors.primary,
+    fontWeight: '600',
   },
 })

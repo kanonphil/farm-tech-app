@@ -280,9 +280,11 @@ export default function ProductDetailScreen() {
   //스낵바 표시/숨김 함수
   const showSnack = () => {
     setShowCartSnack(true)
-    Animated.spring(snackAnim, {toValue :  1, useNativeDriver : true}).start()
+    Animated.spring(snackAnim, { toValue: 1, useNativeDriver: true }).start()
     setTimeout(() => {
-      Animated.timing(snackAnim, {toValue : 0, duration : 200, useNativeDriver : true})
+      Animated.timing(snackAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
+        setShowCartSnack(false)
+      })
     }, 3000)
   }
 
