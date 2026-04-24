@@ -9,6 +9,7 @@ import { getProductDetail } from '@/src/api/productApi'
 import type { ProductDetail } from '@/src/types'
 import useAuthStore from '@/src/store/authStore'
 import { Ionicons } from '@expo/vector-icons'
+import ProductReviewTab from '@/src/components/product/ProductReviewTab'
 
 /**
  * 상품 상세 페이지
@@ -279,9 +280,11 @@ export default function ProductDetailScreen() {
   //스낵바 표시/숨김 함수
   const showSnack = () => {
     setShowCartSnack(true)
-    Animated.spring(snackAnim, {toValue :  1, useNativeDriver : true}).start()
+    Animated.spring(snackAnim, { toValue: 1, useNativeDriver: true }).start()
     setTimeout(() => {
-      Animated.timing(snackAnim, {toValue : 0, duration : 200, useNativeDriver : true})
+      Animated.timing(snackAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
+        setShowCartSnack(false)
+      })
     }, 3000)
   }
 
@@ -414,9 +417,7 @@ export default function ProductDetailScreen() {
               )}
             </View>
           ) : (
-            <View className="p-4">
-              <Text className="text-sm text-gray-400 text-center py-10">리뷰 기능은 준비 중입니다.</Text>
-            </View>
+            <ProductReviewTab productId={productId} />
           )}
         </View>
 

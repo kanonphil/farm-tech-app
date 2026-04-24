@@ -70,7 +70,7 @@ export default function ScreenWrapper({
           <ScrollView
             contentContainerStyle={styles.scroll}
             keyboardShouldPersistTaps='handled'
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={false} 
           >
             {children}
           </ScrollView>

@@ -10,71 +10,77 @@
  * 사용 예시 (어느 컴포넌트에서든):
  *   const { showAlert } = useAuthStore();
  *   showAlert('로그아웃 하시겠습니까?', () => logout());
+ * 
+ * - 콜백 있을 시 confirm으로 교체
  */
 
-import React from 'react';
-import { Modal, View, Text, Pressable } from 'react-native';
-import useAuthStore from '@/src/store/authStore';
+import React from 'react'
+import { Modal, View, Text, Pressable } from 'react-native'
+import useAuthStore from '@/src/store/authStore'
 
-/**
- * 전역 알림 모달 컴포넌트
- * StyleSheet 없이 NativeWind(Tailwind) className만 사용합니다.
- */
 const AlertModal = () => {
-  // authStore에서 모달 상태와 닫기 액션을 가져옵니다
-  const alertModal = useAuthStore((state) => state.alertModal);
-  const closeAlert = useAuthStore((state) => state.closeAlert);
+  const alertModal = useAuthStore((state) => state.alertModal)
+  const closeAlert = useAuthStore((state) => state.closeAlert)
 
-  /**
-   * 확인 버튼 클릭 핸들러
-   * callback이 있으면 먼저 실행하고, 그다음 모달을 닫습니다.
-   */
-  const HandleConfirm = () => {
-    // callback이 존재하면 실행 (예: 로그아웃, 삭제 등 후속 동작)
-    if (alertModal.callback) {
-      alertModal.callback();
-    }
-    // 모달 닫기 (상태를 초기값으로 리셋)
-    closeAlert();
-  };
+  // 확인 버튼 클릭 → callback 실행 → 모달 닫기
+  const handleConfirm = () => {
+    if (alertModal.callback) alertModal.callback()
+    closeAlert()
+  }
 
   return (
-    // React Native의 Modal 컴포넌트
-    // visible: alertModal.show가 true일 때만 화면에 표시됩니다
-    // transparent: 배경을 반투명하게 처리
-    // animationType: 'fade'로 부드럽게 등장/퇴장
     <Modal
       visible={alertModal.show}
       transparent
       animationType="fade"
-      // 하드웨어 뒤로가기(안드로이드) 눌렀을 때도 닫히도록
       onRequestClose={closeAlert}
     >
-      {/* 반투명 딤(dim) 오버레이 — 모달 바깥 영역 */}
-      {/* Pressable로 감싸면 모달 바깥 탭 시 닫히게 할 수 있습니다 (현재는 비활성) */}
+      {/* 딤 오버레이 */}
       <View className="flex-1 items-center justify-center bg-black/40 px-8">
 
-        {/* 흰 카드 — 실제 모달 내용 */}
+        {/* 모달 카드 */}
         <View className="w-full rounded-2xl bg-white px-6 py-7">
 
-          {/* 메시지 텍스트 */}
+          {/* 메시지 */}
           <Text className="mb-6 text-center text-base leading-6 text-gray-800">
             {alertModal.message}
           </Text>
 
-          {/* 확인 버튼 — Colors.primary(#e63946) 배경 */}
-          <Pressable
-            className="items-center rounded-xl bg-[#e63946] py-3"
-            onPress={HandleConfirm}
-            style={({ pressed }) => pressed && { opacity: 0.8 }}
-          >
-            <Text className="text-base font-bold text-white">확인</Text>
-          </Pressable>
+          {/* callback 있으면 취소+확인, 없으면 확인만 */}
+          {alertModal.callback ? (
+            <View className="flex-row gap-x-3">
+              {/* 취소 버튼 */}
+              <Pressable
+                onPress={closeAlert}
+                className="flex-1 items-center rounded-xl border border-[#ddd] py-3"
+                style={({ pressed }) => pressed && { opacity: 0.7 }}
+              >
+                <Text className="text-base font-bold text-[#888]">취소</Text>
+              </Pressable>
+
+              {/* 확인 버튼 */}
+              <Pressable
+                onPress={handleConfirm}
+                className="flex-1 items-center rounded-xl bg-[#e63946] py-3"
+                style={({ pressed }) => pressed && { opacity: 0.8 }}
+              >
+                <Text className="text-base font-bold text-white">확인</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              onPress={handleConfirm}
+              className="items-center rounded-xl bg-[#e63946] py-3"
+              style={({ pressed }) => pressed && { opacity: 0.8 }}
+            >
+              <Text className="text-base font-bold text-white">확인</Text>
+            </Pressable>
+          )}
 
         </View>
       </View>
     </Modal>
-  );
-};
+  )
+}
 
-export default AlertModal;
+export default AlertModal
