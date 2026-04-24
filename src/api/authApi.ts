@@ -190,3 +190,5 @@ export const resetPassword = async (data: {
 }): Promise<void> => {
   await axios.patch(`${BASE_URL}/members/reset-pw`, data);
 };
+
+export const saveFcmToken = (fcmToken : string) => axiosInstance.post('/members/fcm-token', {fcmToken});

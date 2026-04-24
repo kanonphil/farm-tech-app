@@ -21,6 +21,7 @@ export default {
       supportsTablet: true,
     },
     android: {
+      package: "com.farmtech.smartfarm",
       adaptiveIcon: {
         backgroundColor: '#E6F4FE',
         foregroundImage: './assets/images/android-icon-foreground.png',
@@ -51,6 +52,12 @@ export default {
       'expo-secure-store',
       'expo-web-browser',
       "@react-native-community/datetimepicker",
+      [
+        'expo-notifications',
+        {
+          androidMode: 'default',
+        }
+      ]
     ],
     experiments: {
       typedRoutes: true,

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1089221978609",
+    "project_id": "farmtech-c1db7",
+    "storage_bucket": "farmtech-c1db7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089221978609:android:84114cac0390c75b76bc50",
+        "android_client_info": {
+          "package_name": "com.farmtech"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH20oA8KzusFT-rg7aPPGGt69pzld9eBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089221978609:android:e502ebab7160f86776bc50",
+        "android_client_info": {
+          "package_name": "com.farmtech.smartfarm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH20oA8KzusFT-rg7aPPGGt69pzld9eBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
