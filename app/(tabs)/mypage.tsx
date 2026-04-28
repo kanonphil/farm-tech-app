@@ -327,7 +327,7 @@ function MypageContent() {
           icon="headset-outline"
           iconBg="#E6F1FB"
           label="고객센터 / 1:1 문의"
-          onPress={() => showToast('준비 중인 기능입니다.')}
+          onPress={() => router.push('/mypage/chat')}
         />
         <MenuItem
           icon="person-remove-outline"
