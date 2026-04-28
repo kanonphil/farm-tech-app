@@ -408,3 +408,25 @@ export interface TossSuccessParams {
   orderId: string
   amount: string  // URL 파라미터는 문자열
 }
+
+// =============================
+// 채팅(Chat) 관련 타입
+// =============================
+
+export interface ChatRoom {
+  roomId: number;
+  memberId: number;
+  memberName: string;
+  status: 'OPEN' | 'CLOSED';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChatMessage {
+  messageId: number;
+  roomId: number;
+  senderRole: 'MEMBER' | 'MANAGER';
+  content: string;
+  messageType?: 'CHAT' | 'CLOSE';
+  createdAt: string;
+}
