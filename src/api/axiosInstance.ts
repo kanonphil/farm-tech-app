@@ -127,6 +127,19 @@ axiosInstance.interceptors.response.use(
       }
     }
 
+    // ── 403 처리 추가 ──
+    // 토큰이 없는데 403이 오면 → 로그인 안 된 상태로 판단, 로그인 유도
+    if (error.response?.status === 403) {
+      const token = useAuthStore.getState().token;
+      if (!token) {
+        useAuthStore.getState().showAlert(
+          '로그인이 필요한 서비스입니다.',
+          () => router.replace('/auth/login')
+        );
+        return Promise.reject(error);
+      }
+    }
+
     return Promise.reject(error);
   }
 );

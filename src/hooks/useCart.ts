@@ -41,6 +41,9 @@ export default function useCart() {
    * useFocusEffect 같은 훅에서 불필요한 재실행을 막을 수 있습니다.
    */
   const fetchCart = useCallback(async () => {
+    // 로그인 안 된 상태면 API 호출하지 않음
+    if (!useAuthStore.getState().token) return
+    
     setIsLoading(true)
     setError(null)
 
