@@ -31,11 +31,16 @@ export default function AuthGuard({
     if (!isLoggedIn) {
       showToast(message)
 
-      if (redirectTo) {
-        router.replace(`/auth/login?redirect=${encodeURIComponent(redirectTo)}`);
-      } else {
-        router.replace('/auth/login');
-      }
+      // Fabric 렌더 사이클이 끝난 뒤 navigation 실행 (동시 실행 시 뷰 계층 충돌 방지)
+      const timer = setTimeout(() => {
+        if (redirectTo) {
+          router.replace(`/auth/login?redirect=${encodeURIComponent(redirectTo)}`);
+        } else {
+          router.replace('/auth/login');
+        }
+      }, 0)
+
+      return () => clearTimeout(timer)
     }
   }, [isReady, isLoggedIn, redirectTo, message, showToast])
 
