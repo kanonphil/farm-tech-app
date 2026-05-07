@@ -3,7 +3,7 @@ import AppButton from '@/src/components/common/AppButton';
 import AppInput from '@/src/components/common/AppInput';
 import ScreenWrapper from '@/src/components/common/ScreenWrapper';
 import useAuthStore from '@/src/store/authStore';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
@@ -19,6 +19,7 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   //전역 스토어에서 토큰 저장 함수, 토스트 메세지 함수 가져오기
   const {setToken, setRefreshToken, showToast} = useAuthStore()
+  const { redirect } = useLocalSearchParams<{ redirect?: string }>()
 
   const handleLogin = async () => {
     // 입력값 비어있으면 토스트 메시지 표시
@@ -42,7 +43,10 @@ export default function LoginScreen() {
 
         // 저장 직후 스토어에서 role을 꺼내 이동할 탭을 결정
         const { role } = useAuthStore.getState()
-        router.replace(role === 'MANAGER' ? '/(tabs)/dashboard' : '/(tabs)/home')
+        const destination = redirect
+          ? decodeURIComponent(redirect)
+          : role === 'MANAGER' ? '/(tabs)/dashboard' : '/(tabs)/home'
+        router.replace(destination as Parameters<typeof router.replace>[0])
       }else{
         showToast('로그인에 실패했습니다.')
       }
