@@ -2,6 +2,7 @@ import { getMyInfo, logout } from '@/src/api/authApi'
 import { getOrderList } from '@/src/api/orderApi'
 import { getMyReviews, getUnreviewedItems } from '@/src/api/reviewApi'
 import AppButton from '@/src/components/common/AppButton'
+import LoginForm from '@/src/components/auth/LoginForm'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import { Colors } from '@/src/constants/colors'
 import useAuthStore from '@/src/store/authStore'
@@ -352,40 +353,13 @@ function MypageContent() {
 }
 
 // ─────────────────────────────────────────────
-// 내보내기 — 비로그인 시 로그인 유도 화면 포함
+// 내보내기
 // ─────────────────────────────────────────────
 
 export default function MypageScreen() {
   const token = useAuthStore((state) => state.token)
 
-  if (!token) {
-    return (
-      <ScreenWrapper edges={['top']}>
-        <View className="flex-1 items-center justify-center gap-y-4 px-8">
-          <Ionicons name="person-circle-outline" size={80} color="#ddd" />
-          <Text className="text-lg font-semibold text-[#1a1a1a]">로그인이 필요해요</Text>
-          <Text className="text-sm text-[#999] text-center">
-            로그인하고 주문내역, 리뷰 등{'\n'}다양한 서비스를 이용해보세요
-          </Text>
-          <View style={{ width: '100%', marginTop: 8 }}>
-            <AppButton
-              title="로그인"
-              onPress={() => router.push('/auth/login')}
-            />
-          </View>
-          <View style={{ width: '100%' }}>
-            <AppButton
-              title="회원가입"
-              variant="outline"
-              onPress={() => router.push('/auth/signup')}
-            />
-          </View>
-        </View>
-      </ScreenWrapper>
-    )
-  }
+  if (!token) return <LoginForm />
 
-  return (
-      <MypageContent />
-  )
+  return <MypageContent />
 }
