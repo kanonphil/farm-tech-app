@@ -44,7 +44,7 @@ function getStatusBadge(status: string) {
     case 'SHIPPING':  return { label: '배송중',    bg: '#E1F5EE', color: '#0F6E56' }
     case 'SHIPPED':   return { label: '배송완료',  bg: '#e0f2fe', color: '#0369a1' }
     case 'DONE':      return { label: '구매확정',  bg: '#F1EFE8', color: '#5F5E5A' }
-    case 'CANCELLED': return { label: '주문취소',  bg: '#fef2f2', color: '#ef4444' }
+    // case 'CANCELLED': return { label: '주문취소',  bg: '#fef2f2', color: '#ef4444' }
     case 'REFUNDED':  return { label: '환불/취소', bg: '#fef2f2', color: '#ef4444' }
     default:          return { label: status,      bg: '#f3f4f6', color: '#6b7280' }
   }
