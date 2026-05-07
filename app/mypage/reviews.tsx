@@ -93,7 +93,16 @@ export default function ReviewsScreen() {
           pressed && { opacity: 0.7 },
           { borderColor: Colors.primary },
         ]}
-        onPress={() => showToast('리뷰 작성 화면은 준비 중입니다.')}
+        onPress={() =>
+          router.push({
+            pathname: '/mypage/write-review',
+            params: {
+              orderItemId: item.orderItemId,
+              productId:   item.productId,
+              productName: item.productName,
+            },
+          })
+        }
       >
         <Text style={{ color: Colors.primary }} className="text-xs font-medium">
           리뷰 작성
