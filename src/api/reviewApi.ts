@@ -10,7 +10,6 @@
 import { axiosInstance } from './axiosInstance';
 import {
   Review,
-  MyReview,
   UnreviewedItem,
   ReviewReply,
   ReviewRequest,
@@ -63,27 +62,69 @@ export const getUnreviewedItems = async (
 
 /**
  * 리뷰 작성
- * POST /reviews
- * 구매확정(DONE) 상태의 주문 상품에 한해 작성 가능합니다.
+ * POST /reviews  (multipart/form-data)
  * @param data { orderItemId, productId, rating, content }
+ * @param imageUri 선택한 이미지 로컬 경로 (없으면 undefined)
  */
-export const createReview = async (data: ReviewRequest): Promise<void> => {
-  await axiosInstance.post('/reviews', data);
-};
+export const createReview = async (
+  data: ReviewRequest,
+  imageUri?: string
+): Promise<void> => {
+  const formData = new FormData()
+  formData.append('orderItemId', String(data.orderItemId))
+  formData.append('productId',   String(data.productId))
+  formData.append('rating',      String(data.rating))
+  formData.append('content',     data.content)
+
+  if (imageUri) {
+    const filename = imageUri.split('/').pop() ?? 'review.jpg'
+    const ext      = filename.split('.').pop()?.toLowerCase() ?? 'jpg'
+    const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg'
+    formData.append('imgFile', {
+      uri:  imageUri,
+      name: filename,
+      type: mimeType,
+    } as any)
+  }
+
+  await axiosInstance.post('/reviews', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
 
 /**
  * 리뷰 수정
- * PUT /reviews/{reviewId}
- * 본인이 작성한 리뷰만 수정 가능합니다.
+ * PUT /reviews/{reviewId}  (multipart/form-data)
  * @param reviewId 수정할 리뷰 ID
  * @param data     { orderItemId, productId, rating, content }
+ * @param imageUri 새 이미지 경로 (없으면 기존 이미지 유지)
  */
 export const updateReview = async (
   reviewId: number,
-  data: ReviewRequest
+  data: ReviewRequest,
+  imageUri?: string
 ): Promise<void> => {
-  await axiosInstance.put(`/reviews/${reviewId}`, data);
-};
+  const formData = new FormData()
+  formData.append('orderItemId', String(data.orderItemId))
+  formData.append('productId',   String(data.productId))
+  formData.append('rating',      String(data.rating))
+  formData.append('content',     data.content)
+
+  if (imageUri) {
+    const filename = imageUri.split('/').pop() ?? 'review.jpg'
+    const ext      = filename.split('.').pop()?.toLowerCase() ?? 'jpg'
+    const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg'
+    formData.append('imgFile', {
+      uri:  imageUri,
+      name: filename,
+      type: mimeType,
+    } as any)
+  }
+
+  await axiosInstance.put(`/reviews/${reviewId}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
 
 /**
  * 리뷰 삭제
