@@ -190,7 +190,7 @@ export default function OrderDetailScreen() {
                 size="lg"
               />
             )}
-            {['READY', 'PAID'].includes(order.orderStatus) && (
+            {order.orderStatus === 'PAID' && (
               <AppButton
                 title="주문 취소"
                 variant="outline"
