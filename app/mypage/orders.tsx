@@ -39,13 +39,14 @@ function getDateRange(months: number) {
 /** 주문 상태 → 뱃지 색상/텍스트 */
 function getStatusBadge(status: string) {
   switch (status) {
-    case 'READY':    return { label: '주문접수',  bg: '#f3f4f6', color: '#6b7280' }
-    case 'PAID':     return { label: '결제완료',  bg: '#eff6ff', color: '#3b82f6' }
-    case 'SHIPPING': return { label: '배송중',    bg: '#E1F5EE', color: '#0F6E56' }
-    case 'SHIPPED':  return { label: '배송완료',  bg: '#e0f2fe', color: '#0369a1' }
-    case 'DONE':     return { label: '구매확정',  bg: '#F1EFE8', color: '#5F5E5A' }
-    case 'REFUNDED': return { label: '환불/취소', bg: '#fef2f2', color: '#ef4444' }
-    default:         return { label: status,      bg: '#f3f4f6', color: '#6b7280' }
+    case 'READY':     return { label: '주문접수',  bg: '#f3f4f6', color: '#6b7280' }
+    case 'PAID':      return { label: '결제완료',  bg: '#eff6ff', color: '#3b82f6' }
+    case 'SHIPPING':  return { label: '배송중',    bg: '#E1F5EE', color: '#0F6E56' }
+    case 'SHIPPED':   return { label: '배송완료',  bg: '#e0f2fe', color: '#0369a1' }
+    case 'DONE':      return { label: '구매확정',  bg: '#F1EFE8', color: '#5F5E5A' }
+    case 'CANCELLED': return { label: '주문취소',  bg: '#fef2f2', color: '#ef4444' }
+    case 'REFUNDED':  return { label: '환불/취소', bg: '#fef2f2', color: '#ef4444' }
+    default:          return { label: status,      bg: '#f3f4f6', color: '#6b7280' }
   }
 }
 

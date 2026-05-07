@@ -113,6 +113,17 @@ export const confirmPayment = async (
 };
 
 /**
+ * 결제 전 주문 취소 (READY → CANCELLED)
+ * PATCH /orders/cancel?tossOrderId=xxx
+ * 결제 없이 이탈 시 READY 주문을 정리합니다.
+ */
+export const cancelOrder = async (tossOrderId: string): Promise<void> => {
+  await axiosInstance.patch('/orders/cancel', null, {
+    params: { tossOrderId },
+  });
+};
+
+/**
  * 결제 취소
  * POST /api/payments/cancel
  * 결제 후 주문을 취소할 때 호출합니다.

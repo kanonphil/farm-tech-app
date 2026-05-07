@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import LoadingSpinner from '@/src/components/common/LoadingSpinner'
@@ -190,6 +190,7 @@ export default function DeviceControlScreen() {
   const [loading,    setLoading]    = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [activePreset, setActivePreset] = useState<ThresholdPreset | null>(null)
+  const hasLoaded = useRef(false)
 
   useEffect(() => {
     if (isReady && isLoggedIn && role !== 'MANAGER') {
@@ -197,16 +198,17 @@ export default function DeviceControlScreen() {
     }
   }, [isReady, isLoggedIn, role])
 
-  // ── 초기 상태 로드 ─────────────────────────────
-  const loadInitialState = useCallback(async () => {
-    setLoading(true)
+  // ── 상태 로드 ─────────────────────────────────
+  // silent=true: 기존 데이터 유지하며 백그라운드 갱신 (탭 재진입 시)
+  // silent=false: 첫 진입 시 전체 스피너 표시
+  const loadInitialState = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
     try {
       const [iotStatus, preset] = await Promise.all([
         getIoTStatus(),
-        getActivePreset().catch(() => null), // 프리셋 없어도 화면 진입 허용
+        getActivePreset().catch(() => null),
       ])
 
-      // LIVE 상태일 때만 실제 액추에이터 값 동기화
       if (iotStatus.source === 'LIVE') {
         setModeState((iotStatus.mode ?? 'auto') as Mode)
         setLed({
@@ -224,15 +226,19 @@ export default function DeviceControlScreen() {
       }
       setActivePreset(preset)
     } catch {
-      showToast('기기 상태를 불러오지 못했습니다.')
+      if (!silent) showToast('기기 상태를 불러오지 못했습니다.')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
+      hasLoaded.current = true
     }
   }, [showToast])
 
   useFocusEffect(
     useCallback(() => {
-      if (isReady && isLoggedIn && role === 'MANAGER') loadInitialState()
+      if (isReady && isLoggedIn && role === 'MANAGER') {
+        // 첫 진입: 스피너 표시 / 재진입: 기존 데이터 유지하며 조용히 갱신
+        loadInitialState(!hasLoaded.current ? false : true)
+      }
     }, [isReady, isLoggedIn, role, loadInitialState])
   )
 

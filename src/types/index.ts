@@ -189,7 +189,8 @@ export interface UpdateCartRequest {
  * SHIPPING  → 배송중
  * SHIPPED   → 배송완료
  * DONE      → 구매확정
- * REFUNDED  → 환불/취소
+ * CANCELLED → 결제 전 취소
+ * REFUNDED  → 결제 후 환불
  */
 export type OrderStatus =
   | 'READY'
@@ -197,6 +198,7 @@ export type OrderStatus =
   | 'SHIPPING'
   | 'SHIPPED'
   | 'DONE'
+  | 'CANCELLED'
   | 'REFUNDED';
 
 /**
