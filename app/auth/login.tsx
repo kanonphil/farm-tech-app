@@ -4,8 +4,8 @@ import AppInput from '@/src/components/common/AppInput';
 import ScreenWrapper from '@/src/components/common/ScreenWrapper';
 import useAuthStore from '@/src/store/authStore';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { BackHandler, Text, TouchableOpacity, View } from 'react-native';
 
 /**
  * 로그인 페이지
@@ -20,6 +20,14 @@ export default function LoginScreen() {
   //전역 스토어에서 토큰 저장 함수, 토스트 메세지 함수 가져오기
   const {setToken, setRefreshToken, showToast} = useAuthStore()
   const { redirect } = useLocalSearchParams<{ redirect?: string }>()
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      router.canGoBack() ? router.back() : router.replace('/(tabs)/home' as any)
+      return true
+    })
+    return () => backHandler.remove()
+  }, [])
 
   const handleLogin = async () => {
     // 입력값 비어있으면 토스트 메시지 표시

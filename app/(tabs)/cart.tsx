@@ -1,8 +1,9 @@
-import AuthGuard from '@/src/components/auth/AuthGuard'
+import LoginForm from '@/src/components/auth/LoginForm'
 import LoadingSpinner from '@/src/components/common/LoadingSpinner'
 import ScreenWrapper from '@/src/components/common/ScreenWrapper'
 import { Colors } from '@/src/constants/colors'
 import useCart from '@/src/hooks/useCart'
+import useAuthStore from '@/src/store/authStore'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useFocusEffect } from 'expo-router'
 import React, { useCallback, useState } from 'react'
@@ -20,7 +21,10 @@ import { SafeAreaView } from 'react-native-safe-area-context'
  *   3. 주문하기 클릭 -> 선택된 항목 ID를 params로 넘겨 checkout 이동
  */
 export default function CartScreen() {
+  const token = useAuthStore((state) => state.token)
   const { cartItems, isLoading, error, fetchCart, updateQty, deleteItems } = useCart()
+
+  if (!token) return <LoginForm />
 
   /**
    * 선택된 cartItemId 집합
@@ -127,8 +131,7 @@ export default function CartScreen() {
   // ─────────────────────────────────────────────
   
   return (
-    <AuthGuard redirectTo='/(tabs)/cart'>
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#f9f9f9' }} edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f9f9f9' }} edges={['top']}>
 
         {/* ── 헤더 ────────────────────────────────── */}
         <View 
@@ -217,7 +220,6 @@ export default function CartScreen() {
           </ScreenWrapper>
         )}
 
-      </SafeAreaView>
-    </AuthGuard>
+    </SafeAreaView>
   )
 }
