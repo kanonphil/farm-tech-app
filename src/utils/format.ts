@@ -99,15 +99,16 @@ export function formatPhone(phone: string): string {
  * 예시: formatOrderStatus("PAID") → "결제완료"
  */
 export function formatOrderStatus(
-  status: 'READY' | 'PAID' | 'SHIPPING' | 'SHIPPED' | 'DONE' | 'REFUNDED'
+  status: 'READY' | 'PAID' | 'SHIPPING' | 'SHIPPED' | 'DONE' | 'CANCELLED' | 'REFUNDED'
 ): string {
   const map: Record<string, string> = {
-    READY:    '주문대기',
-    PAID:     '결제완료',
-    SHIPPING: '배송중',
-    SHIPPED:  '배송완료',
-    DONE:     '구매확정',
-    REFUNDED: '환불/취소',
+    READY:     '주문대기',
+    PAID:      '결제완료',
+    SHIPPING:  '배송중',
+    SHIPPED:   '배송완료',
+    DONE:      '구매확정',
+    CANCELLED: '주문취소',
+    REFUNDED:  '환불/취소',
   }
   return map[status] ?? status
 }

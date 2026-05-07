@@ -281,9 +281,7 @@ const SensorAreaChart = ({
 
   // 최고값 기준으로 Y축 범위 결정 (10% 여유)
   const dataMax = Math.max(...data.map(d => d.max))
-  const dataMin = Math.min(...data.map(d => d.min))
   const yMax = parseFloat((dataMax * 1.1).toFixed(1))
-  const yMin = dataMin > 0 ? parseFloat((dataMin * 0.9).toFixed(1)) : 0
 
   return (
     <LineChart
@@ -296,7 +294,6 @@ const SensorAreaChart = ({
       yAxisLabelWidth={compact ? 32 : 45}
       spacing={spacing}
       maxValue={yMax}
-      minValue={yMin}
       curved
       animateOnDataChange
       color1={color}

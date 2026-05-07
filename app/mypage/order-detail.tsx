@@ -129,7 +129,7 @@ export default function OrderDetailScreen() {
         <ScrollView className="flex-1 bg-[#f5f5f5]">
 
           {/* 배송 상태 */}
-          {!['READY', 'REFUNDED'].includes(order.orderStatus) && (
+          {!['READY', 'CANCELLED', 'REFUNDED'].includes(order.orderStatus) && (
             <View className="bg-white px-4 mb-2">
               <StatusStep status={order.orderStatus} />
             </View>

@@ -5,6 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import useAuthStore from '@/src/store/authStore'
 import { TossSuccessParams } from '@/src/types'
 import { confirmPayment } from '@/src/api/paymentApi'
+import { cancelOrder } from '@/src/api/orderApi'
 import { Ionicons } from '@expo/vector-icons'
 import { Colors } from '@/src/constants/colors'
 import TossPaymentWebView from '@/src/components/order/TossPaymentWebView'
@@ -44,6 +45,17 @@ export default function PaymentScreen() {
   /** 서버 결제 확인 중 여부 - 이 시간 동안 뒤로가기 차단 */
   const [isConfirming, setIsConfirming] = useState(false)
 
+  // 결제 성공 여부 추적 — false인 채로 unmount되면 READY 주문 취소
+  const paymentConfirmed = React.useRef(false)
+
+  React.useEffect(() => {
+    return () => {
+      if (!paymentConfirmed.current && tossOrderId) {
+        cancelOrder(tossOrderId).catch(() => {})
+      }
+    }
+  }, [tossOrderId])
+
   const showToast = useAuthStore((state) => state.showToast)
 
   // ─────────────────────────────────────────────
@@ -67,6 +79,7 @@ export default function PaymentScreen() {
           amount: parseInt(params.amount, 10),
         })
 
+        paymentConfirmed.current = true
         // 결제 완료 — replace 로 스택에서 payment 를 제거해 뒤로가기 방지
         router.replace(`/order/complete?tossOrderId=${params.orderId}`)
       } catch (error: any) {
