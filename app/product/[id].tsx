@@ -10,6 +10,7 @@ import type { ProductDetail } from '@/src/types'
 import useAuthStore from '@/src/store/authStore'
 import { Ionicons } from '@expo/vector-icons'
 import ProductReviewTab from '@/src/components/product/ProductReviewTab'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 /**
  * 상품 상세 페이지
@@ -290,187 +291,189 @@ export default function ProductDetailScreen() {
 
 
   return (
-    <View className="flex-1 bg-white">
-
-      {/* ── 상단 헤더 ── */}
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
-        <Pressable onPress={() => router.back()} className="w-8">
-          <Ionicons name="chevron-back" size={24} color="#1a1a1a" />
-        </Pressable>
-        <Text className="text-base font-bold text-gray-900">상품 상세</Text>
-        <View className="w-8" />
-      </View>
-
-      {/* ── 탭 ── */}
-      <View className="flex-row border-b border-gray-200">
-        <Pressable
-          className={`flex-1 py-3 items-center border-b-2 ${activeTab === 'desc' ? 'border-[#e63946]' : 'border-transparent'}`}
-          onPress={() => handleTabPress('desc')}
-        >
-          <Text className={`text-sm ${activeTab === 'desc' ? 'text-[#e63946] font-bold' : 'text-gray-400'}`}>
-            상품설명
-          </Text>
-        </Pressable>
-        <Pressable
-          className={`flex-1 py-3 items-center border-b-2 ${activeTab === 'review' ? 'border-[#e63946]' : 'border-transparent'}`}
-          onPress={() => handleTabPress('review')}
-        >
-          <Text className={`text-sm ${activeTab === 'review' ? 'text-[#e63946] font-bold' : 'text-gray-400'}`}>
-            리뷰
-          </Text>
-        </Pressable>
-      </View>
-      
-      {/* ── 스크롤 영역 ── */}
-      <ScrollView  ref={scrollViewRef} showsVerticalScrollIndicator={false}>
-        {/* 이미지 슬라이드 */}
-        <FlatList
-          data={images}
-          keyExtractor={(_, i) => String(i)}
-          style={{ height : width}}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={(e) => {
-            const index = Math.round(e.nativeEvent.contentOffset.x / width)
-            setImgIndex(index)
-          }}
-          renderItem={({ item }) => (
-            <Image
-              source={{ uri: item }}
-              style={{ width, height: width}}
-              resizeMode="contain"
-            />
-          )}
-        />
-
-        {/* 이미지 인디케이터 */}
-        <View className="flex-row justify-center py-2 gap-1">
-          {images.map((_, i) => (
-            <View
-              key={i}
-              className={`h-1.5 rounded-full ${i === imgIndex ? 'w-4 bg-[#e63946]' : 'w-1.5 bg-gray-300'}`}
-            />
-          ))}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top']}>
+      <View className="flex-1 bg-white">
+  
+        {/* ── 상단 헤더 ── */}
+        <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
+          <Pressable onPress={() => router.back()} className="w-8">
+            <Ionicons name="chevron-back" size={24} color="#1a1a1a" />
+          </Pressable>
+          <Text className="text-base font-bold text-gray-900">상품 상세</Text>
+          <View className="w-8" />
         </View>
-        {/* 상품 정보 */}
-        <View className="px-4 py-3 gap-1">
-          <Text className="text-lg font-bold text-gray-900">{product.productName}</Text>
-          <Text className="text-xl font-bold text-[#e63946]">{product.productPrice.toLocaleString()}원</Text>
-          {isSoldOut ? (
-            <Text className="text-sm font-bold text-red-500">품절</Text>
-          ) : (
-            <Text className="text-sm text-gray-400">재고 {stock}개</Text>
-          )}
+  
+        {/* ── 탭 ── */}
+        <View className="flex-row border-b border-gray-200">
+          <Pressable
+            className={`flex-1 py-3 items-center border-b-2 ${activeTab === 'desc' ? 'border-[#e63946]' : 'border-transparent'}`}
+            onPress={() => handleTabPress('desc')}
+          >
+            <Text className={`text-sm ${activeTab === 'desc' ? 'text-[#e63946] font-bold' : 'text-gray-400'}`}>
+              상품설명
+            </Text>
+          </Pressable>
+          <Pressable
+            className={`flex-1 py-3 items-center border-b-2 ${activeTab === 'review' ? 'border-[#e63946]' : 'border-transparent'}`}
+            onPress={() => handleTabPress('review')}
+          >
+            <Text className={`text-sm ${activeTab === 'review' ? 'text-[#e63946] font-bold' : 'text-gray-400'}`}>
+              리뷰
+            </Text>
+          </Pressable>
         </View>
-
-        {/* 구분선 */}
-        <View className="h-2 bg-gray-100" />
-
-        {/* 수량 선택 */}
-        <View className="flex-row items-center justify-between px-4 py-4">
-          <Text className="text-base font-semibold text-gray-900">수량</Text>
-          <View className="flex-row items-center gap-4">
-            <Pressable
-              onPress={handleDecreaseCnt}
-              disabled={cnt <= 1}
-              className={`w-9 h-9 rounded-full border items-center justify-center ${cnt <= 1 ? 'border-gray-200 bg-gray-100' : 'border-gray-300 bg-white'}`}
-            >
-              <Text className="text-lg text-gray-900">-</Text>
-            </Pressable>
-            <Text className="text-base font-bold text-gray-900 min-w-[24px] text-center">{cnt}</Text>
-            <Pressable
-              onPress={handleIncreaseCnt}
-              disabled={isSoldOut || cnt >= stock}
-              className={`w-9 h-9 rounded-full border items-center justify-center ${isSoldOut || cnt >= stock ? 'border-gray-200 bg-gray-100' : 'border-gray-300 bg-white'}`}
-            >
-              <Text className="text-lg text-gray-900">+</Text>
-            </Pressable>
+        
+        {/* ── 스크롤 영역 ── */}
+        <ScrollView  ref={scrollViewRef} showsVerticalScrollIndicator={false}>
+          {/* 이미지 슬라이드 */}
+          <FlatList
+            data={images}
+            keyExtractor={(_, i) => String(i)}
+            style={{ height : width}}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={(e) => {
+              const index = Math.round(e.nativeEvent.contentOffset.x / width)
+              setImgIndex(index)
+            }}
+            renderItem={({ item }) => (
+              <Image
+                source={{ uri: item }}
+                style={{ width, height: width}}
+                resizeMode="contain"
+              />
+            )}
+          />
+  
+          {/* 이미지 인디케이터 */}
+          <View className="flex-row justify-center py-2 gap-1">
+            {images.map((_, i) => (
+              <View
+                key={i}
+                className={`h-1.5 rounded-full ${i === imgIndex ? 'w-4 bg-[#e63946]' : 'w-1.5 bg-gray-300'}`}
+              />
+            ))}
           </View>
-        </View>
-
-        {/* 총 금액 */}
-        <View className="flex-row justify-between items-center px-4 py-4 border-t border-gray-200">
-          <Text className="text-base text-gray-500">총 금액</Text>
-          <Text className="text-lg font-bold text-gray-900">{(product.productPrice * cnt).toLocaleString()}원</Text>
-        </View>
-
-        {/* 구분선 */}
-        <View className="h-2 bg-gray-100" />
-
-        {/* 탭 콘텐츠 */}
-        <View onLayout={(e) => { tabContentY.current = e.nativeEvent.layout.y}} >
-          {activeTab === 'desc' ? (
-            <View className="p-4">
-              {detailImg?.imageSavedName ? (
-                <Image
-                  source={{ uri: detailImg.imageSavedName }}
-                  style={{ width: width, aspectRatio : detailImgRatio }}
-                  resizeMode="contain"
-                  onLoad={(e) => {
-                    const { width: imgW, height: imgH } = e.nativeEvent.source
-                    setDetailImgRatio(imgW / imgH)
-                  }}
-                />
-              ) : (
-                <Text className="text-sm text-gray-400 text-center py-10">상품 설명이 없습니다.</Text>
-              )}
+          {/* 상품 정보 */}
+          <View className="px-4 py-3 gap-1">
+            <Text className="text-lg font-bold text-gray-900">{product.productName}</Text>
+            <Text className="text-xl font-bold text-[#e63946]">{product.productPrice.toLocaleString()}원</Text>
+            {isSoldOut ? (
+              <Text className="text-sm font-bold text-red-500">품절</Text>
+            ) : (
+              <Text className="text-sm text-gray-400">재고 {stock}개</Text>
+            )}
+          </View>
+  
+          {/* 구분선 */}
+          <View className="h-2 bg-gray-100" />
+  
+          {/* 수량 선택 */}
+          <View className="flex-row items-center justify-between px-4 py-4">
+            <Text className="text-base font-semibold text-gray-900">수량</Text>
+            <View className="flex-row items-center gap-4">
+              <Pressable
+                onPress={handleDecreaseCnt}
+                disabled={cnt <= 1}
+                className={`w-9 h-9 rounded-full border items-center justify-center ${cnt <= 1 ? 'border-gray-200 bg-gray-100' : 'border-gray-300 bg-white'}`}
+              >
+                <Text className="text-lg text-gray-900">-</Text>
+              </Pressable>
+              <Text className="text-base font-bold text-gray-900 min-w-[24px] text-center">{cnt}</Text>
+              <Pressable
+                onPress={handleIncreaseCnt}
+                disabled={isSoldOut || cnt >= stock}
+                className={`w-9 h-9 rounded-full border items-center justify-center ${isSoldOut || cnt >= stock ? 'border-gray-200 bg-gray-100' : 'border-gray-300 bg-white'}`}
+              >
+                <Text className="text-lg text-gray-900">+</Text>
+              </Pressable>
             </View>
-          ) : (
-            <ProductReviewTab productId={productId} />
-          )}
-        </View>
-
-      </ScrollView>
-
-      {/* ── 장바구니 스낵바 ── */}
-      {showCartSnack && (
-        <Animated.View
-          style={{
-            position: 'absolute',
-            bottom: 80,
-            left: 16,
-            right: 16,
-            transform: [{
-              translateY: snackAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [120, 0],
-              }),
-            }],
-          }}
-        >
-          <View className="bg-gray-900 rounded-xl px-4 py-3 flex-row items-center justify-between">
-            <Text className="text-white text-sm">장바구니 담기가 완료되었습니다</Text>
-            <Pressable
-              onPress={() => {
-                setShowCartSnack(false)
-                router.push('/(tabs)/cart')
-              }}
-            >
-              <Text className="text-[#e63946] font-bold text-sm ml-3">장바구니 가기</Text>
-            </Pressable>
           </View>
-        </Animated.View>
-      )}
-
-      {/* ── 하단 고정 버튼 ── */}
-      <View className="flex-row px-4 py-3 gap-3 border-t border-gray-200 bg-white">
-        <Pressable
-          onPress={handleAddToCart}
-          disabled={isSoldOut}
-          className={`flex-1 py-4 rounded-xl border border-[#e63946] items-center ${isSoldOut ? 'opacity-40' : ''}`}
-        >
-          <Text className="text-[#e63946] font-bold text-base">장바구니 담기</Text>
-        </Pressable>
-        <Pressable
-          onPress={handleBuyNow}
-          disabled={isSoldOut}
-          className={`flex-1 py-4 rounded-xl bg-[#e63946] items-center ${isSoldOut ? 'opacity-40' : ''}`}
-        >
-          <Text className="text-white font-bold text-base">바로 구매</Text>
-        </Pressable>
+  
+          {/* 총 금액 */}
+          <View className="flex-row justify-between items-center px-4 py-4 border-t border-gray-200">
+            <Text className="text-base text-gray-500">총 금액</Text>
+            <Text className="text-lg font-bold text-gray-900">{(product.productPrice * cnt).toLocaleString()}원</Text>
+          </View>
+  
+          {/* 구분선 */}
+          <View className="h-2 bg-gray-100" />
+  
+          {/* 탭 콘텐츠 */}
+          <View onLayout={(e) => { tabContentY.current = e.nativeEvent.layout.y}} >
+            {activeTab === 'desc' ? (
+              <View className="p-4">
+                {detailImg?.imageSavedName ? (
+                  <Image
+                    source={{ uri: detailImg.imageSavedName }}
+                    style={{ width: width, aspectRatio : detailImgRatio }}
+                    resizeMode="contain"
+                    onLoad={(e) => {
+                      const { width: imgW, height: imgH } = e.nativeEvent.source
+                      setDetailImgRatio(imgW / imgH)
+                    }}
+                  />
+                ) : (
+                  <Text className="text-sm text-gray-400 text-center py-10">상품 설명이 없습니다.</Text>
+                )}
+              </View>
+            ) : (
+              <ProductReviewTab productId={productId} />
+            )}
+          </View>
+  
+        </ScrollView>
+  
+        {/* ── 장바구니 스낵바 ── */}
+        {showCartSnack && (
+          <Animated.View
+            style={{
+              position: 'absolute',
+              bottom: 80,
+              left: 16,
+              right: 16,
+              transform: [{
+                translateY: snackAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [120, 0],
+                }),
+              }],
+            }}
+          >
+            <View className="bg-gray-900 rounded-xl px-4 py-3 flex-row items-center justify-between">
+              <Text className="text-white text-sm">장바구니 담기가 완료되었습니다</Text>
+              <Pressable
+                onPress={() => {
+                  setShowCartSnack(false)
+                  router.push('/(tabs)/cart')
+                }}
+              >
+                <Text className="text-[#e63946] font-bold text-sm ml-3">장바구니 가기</Text>
+              </Pressable>
+            </View>
+          </Animated.View>
+        )}
+  
+        {/* ── 하단 고정 버튼 ── */}
+        <View className="flex-row px-4 py-3 gap-3 border-t border-gray-200 bg-white">
+          <Pressable
+            onPress={handleAddToCart}
+            disabled={isSoldOut}
+            className={`flex-1 py-4 rounded-xl border border-[#e63946] items-center ${isSoldOut ? 'opacity-40' : ''}`}
+          >
+            <Text className="text-[#e63946] font-bold text-base">장바구니 담기</Text>
+          </Pressable>
+          <Pressable
+            onPress={handleBuyNow}
+            disabled={isSoldOut}
+            className={`flex-1 py-4 rounded-xl bg-[#e63946] items-center ${isSoldOut ? 'opacity-40' : ''}`}
+          >
+            <Text className="text-white font-bold text-base">바로 구매</Text>
+          </Pressable>
+        </View>
+  
       </View>
-
-    </View>
+    </SafeAreaView>
   )
 }
