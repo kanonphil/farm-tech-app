@@ -20,11 +20,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
  *   2. 체크박스로 상품 선택 -> 합계 금액 실시간 계산
  *   3. 주문하기 클릭 -> 선택된 항목 ID를 params로 넘겨 checkout 이동
  */
-export default function CartScreen() {
-  const token = useAuthStore((state) => state.token)
+function CartContent() {
   const { cartItems, isLoading, error, fetchCart, updateQty, deleteItems } = useCart()
-
-  if (!token) return <LoginForm />
 
   /**
    * 선택된 cartItemId 집합
@@ -222,4 +219,10 @@ export default function CartScreen() {
 
     </SafeAreaView>
   )
+}
+
+export default function CartScreen() {
+  const token = useAuthStore((state) => state.token)
+  if (!token) return <LoginForm />
+  return <CartContent />
 }
