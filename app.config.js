@@ -22,13 +22,14 @@ export default {
     },
     android: {
       package: "com.farmtech.smartfarm",
+      googleServicesFile: "./google-services.json",
       adaptiveIcon: {
         backgroundColor: '#E6F4FE',
         foregroundImage: './assets/images/android-icon-foreground.png',
         backgroundImage: './assets/images/android-icon-background.png',
         monochromeImage: './assets/images/android-icon-monochrome.png',
       },
-      edgeToEdgeEnabled: true,
+      edgeToEdgeEnabled: false,
       predictiveBackGestureEnabled: false,
     },
     web: {

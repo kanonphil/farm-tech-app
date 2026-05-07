@@ -9,6 +9,7 @@ import React, { useCallback, useState } from 'react'
 import { FlatList, Pressable, Text, View } from 'react-native'
 import CartItemCard from '@/src/components/cart/CartItem'
 import CartSummary from '@/src/components/cart/CartSummary'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 /**
  * 장바구니 화면
@@ -127,100 +128,96 @@ export default function CartScreen() {
   
   return (
     <AuthGuard redirectTo='/(tabs)/cart'>
-      
-      {/* ── 헤더 ────────────────────────────────── */}
-      <View 
-        className='flex-row items-center border-b border-[#eee] bg-white px-4 py-4'
-        style={{ paddingVertical: 24 }}
-      >
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          style={({ pressed }) => pressed && { opacity: 0.7 }}
-          className='mr-3'
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#f9f9f9' }} edges={['top']}>
+
+        {/* ── 헤더 ────────────────────────────────── */}
+        <View 
+          className='flex-row items-center border-b border-[#eee] bg-white px-4 py-4'
+          style={{ paddingVertical: 24 }}
         >
-          <Ionicons name='arrow-back' size={24} color={Colors.textPrimary} />
-        </Pressable>
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
+            className='mr-3'
+          >
+            <Ionicons name='arrow-back' size={24} color={Colors.textPrimary} />
+          </Pressable>
 
-        <Text className='text-base font-bold text-[#1a1a1a]'>장바구니</Text>
-      </View>
-      {isLoading ? (
-        <LoadingSpinner full />
-      ) : error ? (
-        <ScreenWrapper edges={['top']}>
-          <View className='flex-1 items-center justify-center'>
-            <Text className='text-base text-[#999]'>{error}</Text>
-          </View>
-        </ScreenWrapper>
-      ) : cartItems.length === 0 ? (
-        <ScreenWrapper edges={['top']}>
-          <View className='flex-1 items-center justify-center'>
-            <Ionicons name='cart-outline' size={48} color={Colors.textMuted} />
-            <Text className='mt-3 text-base text-[#999]'>장바구니가 비어있습니다.</Text>
-          </View>
-        </ScreenWrapper>
-      ) : (
-        <ScreenWrapper edges={['top']}>
+          <Text className='text-base font-bold text-[#1a1a1a]'>장바구니</Text>
+        </View>
 
-          {/* ── 상단 선택/삭제 바 ──────────────────── */}
-          <View className='flex-row items-center justify-between border-b border-[#eee] bg-white px-4 py-2'>
-            {/* 전체선택 체크박스 */}
-            <Pressable
-              onPress={handleSelectAll}
-              style={({ pressed }) => pressed && { opacity: 0.7 }}
-              className='flex-row items-center'
-            >
-              <Ionicons 
-                name={isAllSelected ? 'checkbox' : 'square-outline'}
-                size={22}
-                color={isAllSelected ? Colors.primary : Colors.textMuted}
-              />
-              <Text className='ml-2 text-sm text-[#555]'>
-                전체선택 ({selectedIds.size}/{cartItems.length})
-              </Text>
-            </Pressable>
+        {isLoading ? (
+          <LoadingSpinner full />
+        ) : error ? (
+          <ScreenWrapper edges={['bottom']}>
+            <View className='flex-1 items-center justify-center'>
+              <Text className='text-base text-[#999]'>{error}</Text>
+            </View>
+          </ScreenWrapper>
+        ) : cartItems.length === 0 ? (
+          <ScreenWrapper edges={['bottom']}>
+            <View className='flex-1 items-center justify-center'>
+              <Ionicons name='cart-outline' size={48} color={Colors.textMuted} />
+              <Text className='mt-3 text-base text-[#999]'>장바구니가 비어있습니다.</Text>
+            </View>
+          </ScreenWrapper>
+        ) : (
+          <ScreenWrapper edges={['bottom']}>
 
-            {/* 선택삭제 — 선택된 항목이 있을 때만 표시 */}
-            {selectedIds.size > 0 && (
-              <Pressable 
-                onPress={handleDeleteSelected}
+            {/* ── 상단 선택/삭제 바 ──────────────────── */}
+            <View className='flex-row items-center justify-between border-b border-[#eee] bg-white px-4 py-2'>
+              <Pressable
+                onPress={handleSelectAll}
                 style={({ pressed }) => pressed && { opacity: 0.7 }}
+                className='flex-row items-center'
               >
-                <Text className="text-sm text-[#999]">선택삭제</Text>
+                <Ionicons 
+                  name={isAllSelected ? 'checkbox' : 'square-outline'}
+                  size={22}
+                  color={isAllSelected ? Colors.primary : Colors.textMuted}
+                />
+                <Text className='ml-2 text-sm text-[#555]'>
+                  전체선택 ({selectedIds.size}/{cartItems.length})
+                </Text>
               </Pressable>
-            )}
-          </View>
 
-          {/* ── 장바구니 목록 ──────────────────────── */}
-          {/**
-           * FlatList: 긴 목록을 성능 좋게 렌더링합니다.
-           * ScrollView와 달리 화면 밖 항목을 메모리에서 해제하고
-           * 보이는 항목만 렌더링해서 메모리를 아낍니다.
-           */}
-          <FlatList 
-            data={cartItems}
-            keyExtractor={(item) => String(item.cartItemId)}
-            renderItem={({ item }) => (
-              <CartItemCard 
-                item={item}
-                isSelected={selectedIds.has(item.cartItemId)}
-                onSelect={handleSelect}
-                onQtyChange={updateQty}
-                onDelete={handleDeleteOne}
-              />
-            )}
-          />
+              {selectedIds.size > 0 && (
+                <Pressable 
+                  onPress={handleDeleteSelected}
+                  style={({ pressed }) => pressed && { opacity: 0.7 }}
+                >
+                  <Text className="text-sm text-[#999]">선택삭제</Text>
+                </Pressable>
+              )}
+            </View>
 
-          {/* ── 하단 결제 요약 ─────────────────────── */}
-          <CartSummary
-            selectedCount={selectedIds.size}
-            totalPrice={totalPrice}
-            onCheckout={handleCheckout}
-          />
+            {/* ── 장바구니 목록 ──────────────────────── */}
+            <FlatList 
+              data={cartItems}
+              keyExtractor={(item) => String(item.cartItemId)}
+              renderItem={({ item }) => (
+                <CartItemCard 
+                  item={item}
+                  isSelected={selectedIds.has(item.cartItemId)}
+                  onSelect={handleSelect}
+                  onQtyChange={updateQty}
+                  onDelete={handleDeleteOne}
+                />
+              )}
+            />
 
-        </ScreenWrapper>
-      )}
-      
+            {/* ── 하단 결제 요약 ─────────────────────── */}
+            <CartSummary
+              selectedCount={selectedIds.size}
+              totalPrice={totalPrice}
+              onCheckout={handleCheckout}
+            />
+
+          </ScreenWrapper>
+        )}
+
+      </SafeAreaView>
     </AuthGuard>
   )
 }

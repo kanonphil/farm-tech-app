@@ -386,8 +386,6 @@ export default function MypageScreen() {
   }
 
   return (
-    <ScreenWrapper edges={['top']}>
       <MypageContent />
-    </ScreenWrapper>
   )
 }
