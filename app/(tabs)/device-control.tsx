@@ -191,6 +191,7 @@ export default function DeviceControlScreen() {
   const [submitting, setSubmitting] = useState(false)
   const [activePreset, setActivePreset] = useState<ThresholdPreset | null>(null)
   const hasLoaded = useRef(false)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)  
 
   useEffect(() => {
     if (isReady && isLoggedIn && role !== 'MANAGER') {
@@ -232,14 +233,29 @@ export default function DeviceControlScreen() {
       hasLoaded.current = true
     }
   }, [showToast])
+  
+  const stopPolling = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }, [])
+
+  const startPolling = useCallback(() => {
+    stopPolling()
+    intervalRef.current = setInterval(() => {
+      loadInitialState(true)  // 3초마다 조용히 상태 갱신
+    }, 3000)
+  }, [loadInitialState, stopPolling])
 
   useFocusEffect(
     useCallback(() => {
       if (isReady && isLoggedIn && role === 'MANAGER') {
-        // 첫 진입: 스피너 표시 / 재진입: 기존 데이터 유지하며 조용히 갱신
         loadInitialState(!hasLoaded.current ? false : true)
+        startPolling()  // ← 폴링 시작
       }
-    }, [isReady, isLoggedIn, role, loadInitialState])
+      return () => stopPolling()  // ← 화면 벗어날 때 자동 중단
+    }, [isReady, isLoggedIn, role, loadInitialState, startPolling, stopPolling])
   )
 
   // ── 모드 전환 ──────────────────────────────────
@@ -249,12 +265,13 @@ export default function DeviceControlScreen() {
     try {
       await setMode(newMode)
       setModeState(newMode)
+      await loadInitialState(true)
     } catch {
       showToast('모드 전환에 실패했습니다.')
     } finally {
       setSubmitting(false)
     }
-  }, [mode, showToast])
+  }, [mode, showToast, loadInitialState])
 
   // ── LED ────────────────────────────────────────
   const handleLedOn = useCallback(async () => {
@@ -363,8 +380,16 @@ export default function DeviceControlScreen() {
           stepperLabel='밝기' stepperDisplayValue={`${led.value}%`}
           canDecrease={led.value > 10} canIncrease={led.value < 100}
           onPressOn={handleLedOn} onPressOff={handleLedOff}
-          onDecrease={() => setLed(p => ({ ...p, value: Math.max(10,  p.value - 10) }))}
-          onIncrease={() => setLed(p => ({ ...p, value: Math.min(100, p.value + 10) }))}
+          onDecrease={() => {
+            const newValue = Math.max(10, led.value - 10)
+            setLed(p => ({ ...p, value: newValue }))
+            if (led.on && isManual) ledOn(newValue / 100).catch(() => {})
+          }}
+          onIncrease={() => {
+            const newValue = Math.min(100, led.value + 10)
+            setLed(p => ({ ...p, value: newValue }))
+            if (led.on && isManual) ledOn(newValue / 100).catch(() => {})
+          }}
         />
         <ActuatorCard
           label='환풍기' icon='aperture-outline' iconColor='#3b82f6' iconBg='bg-blue-100'
@@ -372,8 +397,16 @@ export default function DeviceControlScreen() {
           stepperLabel='속도' stepperDisplayValue={`${fan.value}%`}
           canDecrease={fan.value > 10} canIncrease={fan.value < 100}
           onPressOn={handleFanOn} onPressOff={handleFanOff}
-          onDecrease={() => setFan(p => ({ ...p, value: Math.max(10,  p.value - 10) }))}
-          onIncrease={() => setFan(p => ({ ...p, value: Math.min(100, p.value + 10) }))}
+          onDecrease={() => {
+            const newValue = Math.max(10, fan.value - 10)
+            setFan(p => ({ ...p, value: newValue }))
+            if (fan.on && isManual) fanOn(newValue / 100).catch(() => {})
+          }}
+          onIncrease={() => {
+            const newValue = Math.min(100, fan.value + 10)
+            setFan(p => ({ ...p, value: newValue }))
+            if (fan.on && isManual) fanOn(newValue / 100).catch(() => {})
+          }}
         />
         <ActuatorCard
           label='부저' icon='volume-high-outline' iconColor='#a855f7' iconBg='bg-purple-100'
@@ -381,8 +414,16 @@ export default function DeviceControlScreen() {
           stepperLabel='주파수' stepperDisplayValue={`${buzzer.value} Hz`}
           canDecrease={buzzer.value > 200} canIncrease={buzzer.value < 2000}
           onPressOn={handleBuzzerOn} onPressOff={handleBuzzerOff}
-          onDecrease={() => setBuzzer(p => ({ ...p, value: Math.max(200,  p.value - 100) }))}
-          onIncrease={() => setBuzzer(p => ({ ...p, value: Math.min(2000, p.value + 100) }))}
+          onDecrease={() => {
+            const newValue = Math.max(200, buzzer.value - 100)
+            setBuzzer(p => ({ ...p, value: newValue }))
+            if (buzzer.on && isManual) buzzerOn(newValue).catch(() => {})
+          }}
+          onIncrease={() => {
+            const newValue = Math.min(2000, buzzer.value + 100)
+            setBuzzer(p => ({ ...p, value: newValue }))
+            if (buzzer.on && isManual) buzzerOn(newValue).catch(() => {})
+          }}
         />
       </View>
 
