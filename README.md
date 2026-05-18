@@ -22,14 +22,14 @@ IoT 센서로 관리되는 스마트 축사에서 생산된 한우를 판매하�
 | 구분 | 기술 |
 |------|------|
 | **App** | React Native (Expo), TypeScript, NativeWind |
-| **Backend** | Spring Boot 3, Java 17, MyBatis, Spring Security |
-| **Database** | MariaDB |
+| **[Backend](https://github.com/kanonphil/smart-farm-farmtech/tree/main/backend)** | Spring Boot 3, Java 17, MyBatis, Spring Security |
+| **Database** | MariaDB, AWS RDS(MySQL) |
 | **상태관리** | Zustand |
-| **인증** | JWT (Access Token + Refresh Token), BCrypt, HttpOnly Cookie |
+| **인증** | JWT (Access Token + Refresh Token), BCrypt, Expo SecureStore |
 | **실시간 통신** | SSE (Server-Sent Events), WebSocket STOMP |
 | **푸시 알림** | Firebase FCM |
 | **결제** | 토스페이먼츠 (TossPayments, WebView 방식) |
-| **IoT** | Raspberry Pi, Python3, FastAPI, MariaDB 센서 연동 |
+| **IoT** | Raspberry Pi, Python3, FastAPI, MariaDB(AWS RDS로 변경) 센서 연동 |
 | **빌드** | Gradle, Expo EAS |
 
 ---
