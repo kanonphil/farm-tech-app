@@ -19,10 +19,10 @@ type RangeType  = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom'
 
 /** 웹 sensorAggregate.js와 동일한 포인트 구조 */
 type ChartData = {
-  time:  string
-  value: number
-  max:   number
-  min:   number
+  time: string
+  value: number | null
+  max: number | null
+  min: number | null
 }
 
 // ────────────────────────────────────────────────
@@ -219,22 +219,62 @@ function sparseLabels(pts: { value: number; label?: string }[], maxLabels = 7) {
 // 서브 컴포넌트
 // ────────────────────────────────────────────────
 
-const StatRow = ({ data, unit, color }: { data: ChartData[]; unit: string; color: string }) => {
-  const valid  = data.filter(d => d.value !== 0)
-  const avgVal = valid.length ? (valid.reduce((s, d) => s + d.value, 0) / valid.length).toFixed(1) : '-'
-  const maxVal = valid.length ? Math.max(...valid.map(d => d.max)).toFixed(1) : '-'
-  const minVal = valid.length ? Math.min(...valid.map(d => d.min)).toFixed(1) : '-'
+const StatRow = ({
+  data,
+  unit,
+  color,
+}: {
+  data: ChartData[]
+  unit: string
+  color: string
+}) => {
+  // null 제거 후 number[] 생성
+  const values = data
+    .map(d => d.value)
+    .filter((v): v is number => v !== null)
+
+  const maxValues = data
+    .map(d => d.max)
+    .filter((v): v is number => v !== null)
+
+  const minValues = data
+    .map(d => d.min)
+    .filter((v): v is number => v !== null)
+
+  const avgVal =
+    values.length > 0
+      ? (values.reduce((sum, v) => sum + v, 0) / values.length).toFixed(1)
+      : '-'
+
+  const maxVal =
+    maxValues.length > 0
+      ? Math.max(...maxValues).toFixed(1)
+      : '-'
+
+  const minVal =
+    minValues.length > 0
+      ? Math.min(...minValues).toFixed(1)
+      : '-'
 
   return (
-    <View className='flex-row gap-2 mb-4'>
+    <View className="flex-row gap-2 mb-4">
       {[
-        { label: '평균', value: avgVal, c: color     },
+        { label: '평균', value: avgVal, c: color },
         { label: '최고', value: maxVal, c: '#ef4444' },
         { label: '최저', value: minVal, c: '#3b82f6' },
       ].map(s => (
-        <View key={s.label} className='flex-1 bg-white rounded-2xl border border-gray-100 py-3 items-center'>
-          <Text className='text-xs text-gray-400 mb-1'>{s.label}</Text>
-          <Text className='text-base font-bold' style={{ color: s.c }}>
+        <View
+          key={s.label}
+          className="flex-1 bg-white rounded-2xl border border-gray-100 py-3 items-center"
+        >
+          <Text className="text-xs text-gray-400 mb-1">
+            {s.label}
+          </Text>
+
+          <Text
+            className="text-base font-bold"
+            style={{ color: s.c }}
+          >
             {s.value !== '-' ? `${s.value}${unit}` : '-'}
           </Text>
         </View>
@@ -258,72 +298,72 @@ const Legend = ({ color }: { color: string }) => (
   </View>
 )
 
-const SensorAreaChart = ({
-  data, color, unit, chartWidth, compact = false,
-}: {
+interface SensorAreaChartProps {
   data: ChartData[]
   color: string
-  unit: string
   chartWidth: number
-  compact?: boolean
-}) => {
+}
+
+const SensorAreaChart = ({
+  data,
+  color,
+  chartWidth,
+}: SensorAreaChartProps) => {
+  const chartData = useMemo(() => {
+    return [
+      {
+        data: data.map(d => ({
+          value: d.value ?? undefined,
+          label: d.time,
+        })),
+        color,
+        thickness: 2,
+
+        areaChart: true,
+        startFillColor: color,
+        endFillColor: color,
+        startOpacity: 0.18,
+        endOpacity: 0.03,
+      },
+
+      {
+        data: data.map(d => ({
+          value: d.max ?? undefined,
+        })),
+        color: '#ef4444',
+        thickness: 1.5,
+        strokeDashArray: [4, 4],
+      },
+
+      {
+        data: data.map(d => ({
+          value: d.min ?? undefined,
+        })),
+        color: '#3b82f6',
+        thickness: 1.5,
+        strokeDashArray: [4, 4],
+      },
+    ]
+  }, [data, color])
+
   if (!data.length) return null
 
-  const avgPts = sparseLabels(data.map(d => ({ value: d.value, label: d.time })))
-  const maxPts = data.map(d => ({ value: d.max }))
-  const minPts = data.map(d => ({ value: d.min }))
-
-  const spacing = avgPts.length > 0
-    ? Math.max(compact ? 10 : 15, Math.floor(chartWidth / avgPts.length))
-    : 40
-
-  const height = compact ? 140 : 220
-
-  // 최고값 기준으로 Y축 범위 결정 (10% 여유)
-  const dataMax = Math.max(...data.map(d => d.max))
-  const yMax = parseFloat((dataMax * 1.1).toFixed(1))
-
   return (
-    <LineChart
-      areaChart
-      data={avgPts}
-      data2={maxPts}
-      data3={minPts}
-      width={chartWidth}
-      height={height}
-      yAxisLabelWidth={compact ? 32 : 45}
-      spacing={spacing}
-      maxValue={yMax}
-      curved
-      animateOnDataChange
-      color1={color}
-      startFillColor1={color} endFillColor1={color}
-      startOpacity1={0.35}    endOpacity1={0.01}
-      color2='#ef4444'
-      startOpacity2={0} endOpacity2={0}
-      color3='#3b82f6'
-      startOpacity3={0} endOpacity3={0}
-      thickness1={2} thickness2={1.5} thickness3={1.5}
-      hideDataPoints
-      noOfSections={4}
-      rulesType='solid'    rulesColor='#f3f4f6'
-      xAxisColor='#e5e7eb' yAxisColor='#e5e7eb'
-      yAxisTextStyle={{ fontSize: 10, color: '#9ca3af' }}
-      xAxisLabelTextStyle={{ fontSize: 9, color: '#9ca3af', width: 36 }}
-      initialSpacing={8} endSpacing={8}
-      pointerConfig={{
-        pointerStripHeight: height - 40,
-        pointerLabelWidth: 140,
-        pointerLabelHeight: 72,
-        pointerLabelComponent: (items: any[]) => (
-          <View className='bg-gray-800 px-3 py-2 rounded-xl' style={{ gap: 3 }}>
-            <Text className='text-white text-xs'>평균 {items[0]?.value ?? '-'}{unit}</Text>
-            <Text className='text-white text-xs' style={{ color: '#fca5a5' }}>최고 {items[1]?.value ?? '-'}{unit}</Text>
-            <Text className='text-white text-xs' style={{ color: '#93c5fd' }}>최저 {items[2]?.value ?? '-'}{unit}</Text>
-          </View>
-        ),
-      }}
-    />
+    <View>
+      <LineChart
+        dataSet={chartData}
+        width={chartWidth}
+        noOfSections={4}
+        yAxisThickness={0}
+        xAxisThickness={1}
+        rulesType="dashed"
+        spacing={45}
+        initialSpacing={10}
+        endSpacing={10}
+        hideDataPoints={false}
+        dataPointsColor="#000"
+      />
+    </View>
   )
 }
 
@@ -533,44 +573,73 @@ export default function DataScreen() {
       </View>
 
       {/* ── 차트 영역 ── */}
-      <View className='px-5 pb-10'>
-
+      <View className="px-5 pb-10">
         {!historyData ? (
-          <View className='bg-white rounded-2xl border border-gray-100 p-10 items-center'>
-            <Ionicons name='bar-chart-outline' size={40} color='#d1d5db' />
-            <Text className='text-sm text-gray-400 mt-3 text-center'>기간을 선택하고 조회하기를 눌러주세요</Text>
+          <View className="bg-white rounded-2xl border border-gray-100 p-10 items-center">
+            <Ionicons
+              name="bar-chart-outline"
+              size={40}
+              color="#d1d5db"
+            />
+            <Text className="text-sm text-gray-400 mt-3 text-center">
+              기간을 선택하고 조회하기를 눌러주세요
+            </Text>
           </View>
-
         ) : loading ? (
-          <View className='bg-white rounded-2xl border border-gray-100 p-10 items-center'>
-            <ActivityIndicator size='large' color='#6b7280' />
-            <Text className='text-sm text-gray-400 mt-3'>데이터 불러오는 중...</Text>
+          <View className="bg-white rounded-2xl border border-gray-100 p-10 items-center">
+            <ActivityIndicator
+              size="large"
+              color="#6b7280"
+            />
+            <Text className="text-sm text-gray-400 mt-3">
+              데이터 불러오는 중...
+            </Text>
           </View>
-
         ) : activeTab === 'all' ? (
-          /* ── 전체 탭: 1×4 리스트 ── */
-          <View className='gap-4'>
+          /* 전체 탭 */
+          <View className="gap-4">
             {singleTabs.map(tab => {
-              const data = tab.key === 'temp'     ? tempData
-                         : tab.key === 'humidity' ? humidityData
-                         : tab.key === 'light'    ? lightData
-                         :                          airData
+              const data =
+                tab.key === 'temp'
+                  ? tempData
+                  : tab.key === 'humidity'
+                  ? humidityData
+                  : tab.key === 'light'
+                  ? lightData
+                  : airData
+
               return (
-                <View key={tab.key} className='bg-white rounded-2xl border border-gray-100 p-4'>
-                  <Text className='text-sm font-bold mb-3' style={{ color: tab.color }}>
+                <View
+                  key={tab.key}
+                  className="bg-white rounded-2xl border border-gray-100 p-4"
+                >
+                  <Text
+                    className="text-sm font-bold mb-3"
+                    style={{ color: tab.color }}
+                  >
                     {tab.label} ({tab.unit.trim()})
                   </Text>
+
                   {data.length === 0 ? (
-                    <View className='items-center py-6'>
-                      <Text className='text-sm text-gray-400'>데이터 없음</Text>
+                    <View className="items-center py-6">
+                      <Text className="text-sm text-gray-400">
+                        데이터 없음
+                      </Text>
                     </View>
                   ) : (
                     <>
-                      <StatRow data={data} unit={tab.unit} color={tab.color} />
-                      <SensorAreaChart
-                        data={data} color={tab.color} unit={tab.unit}
-                        chartWidth={CHART_WIDTH} compact
+                      <StatRow
+                        data={data}
+                        unit={tab.unit}
+                        color={tab.color}
                       />
+
+                      <SensorAreaChart
+                        data={data}
+                        color={tab.color}
+                        chartWidth={CHART_WIDTH}
+                      />
+
                       <Legend color={tab.color} />
                     </>
                   )}
@@ -578,30 +647,54 @@ export default function DataScreen() {
               )
             })}
           </View>
-
         ) : (
-          /* ── 단일 탭 ── */
+          /* 단일 탭 */
           (() => {
-            const tab  = SENSOR_TABS.find(t => t.key === activeTab)!
-            const data = activeTab === 'temp'     ? tempData
-                       : activeTab === 'humidity' ? humidityData
-                       : activeTab === 'light'    ? lightData
-                       :                            airData
+            const tab = SENSOR_TABS.find(
+              t => t.key === activeTab
+            )!
+
+            const data =
+              activeTab === 'temp'
+                ? tempData
+                : activeTab === 'humidity'
+                ? humidityData
+                : activeTab === 'light'
+                ? lightData
+                : airData
+
             return data.length === 0 ? (
-              <View className='bg-white rounded-2xl border border-gray-100 p-10 items-center'>
-                <Ionicons name='document-outline' size={40} color='#d1d5db' />
-                <Text className='text-sm text-gray-400 mt-3'>해당 기간에 데이터가 없습니다</Text>
+              <View className="bg-white rounded-2xl border border-gray-100 p-10 items-center">
+                <Ionicons
+                  name="document-outline"
+                  size={40}
+                  color="#d1d5db"
+                />
+                <Text className="text-sm text-gray-400 mt-3">
+                  해당 기간에 데이터가 없습니다
+                </Text>
               </View>
             ) : (
-              <View className='bg-white rounded-2xl border border-gray-100 p-4'>
-                <Text className='text-sm font-bold mb-3' style={{ color: tab.color }}>
+              <View className="bg-white rounded-2xl border border-gray-100 p-4">
+                <Text
+                  className="text-sm font-bold mb-3"
+                  style={{ color: tab.color }}
+                >
                   {tab.label} ({tab.unit.trim()})
                 </Text>
-                <StatRow data={data} unit={tab.unit} color={tab.color} />
+
+                <StatRow
+                  data={data}
+                  unit={tab.unit}
+                  color={tab.color}
+                />
+
                 <SensorAreaChart
-                  data={data} color={tab.color} unit={tab.unit}
+                  data={data}
+                  color={tab.color}
                   chartWidth={CHART_WIDTH}
                 />
+
                 <Legend color={tab.color} />
               </View>
             )
